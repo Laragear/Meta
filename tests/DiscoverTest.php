@@ -3,7 +3,10 @@
 namespace Tests;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Laragear\Meta\Discover;
+use Mockery;
+use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Component\Finder\SplFileInfo;
 use function realpath;
@@ -11,42 +14,30 @@ use const DIRECTORY_SEPARATOR as DS;
 
 class DiscoverTest extends TestCase
 {
-    protected function setUp(): void
+    protected function file(string $path): Mockery\MockInterface
     {
-        parent::setUp();
-
-        $this->app->make('files')->copyDirectory(__DIR__ . '/../stubs/App/Events', $this->app->path('Events'));
-        $this->app->make('files')->copyDirectory(__DIR__ . '/../stubs/Services', $this->app->basePath('services'));
-    }
-
-    protected function tearDown(): void
-    {
-        $this->app->forgetInstance('files');
-        $this->app->make('files')->deleteDirectory($this->app->path('Events'));
-        $this->app->make('files')->deleteDirectory($this->app->basePath('services'));
-
-        parent::tearDown();
+        return tap(Mockery::mock(SplFileInfo::class), static function (Mockery\MockInterface $mock) use ($path): void {
+            $mock->expects('getRealPath')->andReturn(
+                Str::of($path)->replace(['\\', '/'], [DS, DS])->toString()
+            );
+        });
     }
 
     protected function mockAllFiles(): void
     {
         File::shouldReceive('allFiles')->with($this->app->path('Events'))->andReturn([
-            new SplFileInfo($this->app->path('Events'.DS.'Foo.php'), '', $this->app->path('Events')),
-            new SplFileInfo($this->app->path('Events'.DS.'Bar.php'), '', $this->app->path('Events')),
-            new SplFileInfo($this->app->path('Events'.DS.'Bar'.DS.'Quz.php'), '', $this->app->path('Events'.DS.'Bar')),
-            new SplFileInfo(
-                $this->app->path('Events'.DS.'Bar'.DS.'Baz'.DS.'Cougar.php'),
-                '',
-                $this->app->path('Events'.DS.'Bar'.DS.'Baz')
-            ),
+            $this->file($this->app->path('Events/Foo.php')),
+            $this->file($this->app->path('Events/Bar.php')),
+            $this->file($this->app->path('Events/Bar/Quz.php')),
+            $this->file($this->app->path('Events/Bar/Baz/Cougar.php')),
         ]);
     }
 
     public function test_defaults_to_app_namespace_and_path_with_zero_depth(): void
     {
         File::expects('files')->with($this->app->path('Events'))->andReturn([
-            new SplFileInfo($this->app->path('Events'.DS.'Foo.php'), '', $this->app->path('Events')),
-            new SplFileInfo($this->app->path('Events'.DS.'Bar.php'), '', $this->app->path('Events')),
+            $this->file($this->app->path('Events/Foo.php')),
+            $this->file($this->app->path('Events/Bar.php')),
         ]);
 
         $classes = Discover::in('Events')->all();
@@ -59,8 +50,8 @@ class DiscoverTest extends TestCase
     public function test_doesnt_adds_file_to_reflection_if_not_autoloaded(): void
     {
         File::expects('files')->with($this->app->path('Events'))->andReturn([
-            new SplFileInfo($this->app->path('INVALID.php'), '', $this->app->path()),
-            new SplFileInfo($this->app->path('INVALID.php'), '', $this->app->path()),
+            $this->file($this->app->path('INVALID.php')),
+            $this->file($this->app->path('INVALID.php')),
         ]);
 
         $classes = Discover::in('Events')->all();
@@ -71,10 +62,10 @@ class DiscoverTest extends TestCase
     public function test_doesnt_adds_traits_abstracts_or_interfaces(): void
     {
         File::expects('files')->with($this->app->path('Events'))->andReturn([
-            new SplFileInfo($this->app->path('Events'.DS.'empty.php'), '', $this->app->path('Events')),
-            new SplFileInfo($this->app->path('Events'.DS.'TestInterface.php'), '', $this->app->path('Events')),
-            new SplFileInfo($this->app->path('Events'.DS.'Bar'.DS.'TestInterface.php'), '', $this->app->path('Events')),
-            new SplFileInfo($this->app->path('Events'.DS.'AbstractClass.php'), '', $this->app->path('Events')),
+            $this->file($this->app->path('Events/empty.php')),
+            $this->file($this->app->path('Events/TestInterface.php')),
+            $this->file($this->app->path('Events/Bar/TestInterface.php')),
+            $this->file($this->app->path('Events/AbstractClass.php')),
         ]);
 
         $classes = Discover::in('Events')->all();
@@ -95,15 +86,19 @@ class DiscoverTest extends TestCase
     public function test_uses_different_root_path_and_root_namespace(): void
     {
         File::shouldReceive('allFiles')->with($this->app->basePath('services'.DS.'Events'))->andReturn([
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Foo.php'), '', ''),
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar.php'), '', ''),
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Quz.php'), '', ''),
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Baz'.DS.'Cougar.php'), '', ''),
+            $this->file($this->app->basePath('Services/Events/Foo.php')),
+            $this->file($this->app->basePath('Services/Events/Bar.php')),
+            $this->file($this->app->basePath('Services/Events/Bar/Quz.php')),
+            $this->file($this->app->basePath('Services/Events/Bar/Baz/Cougar.php')),
         ]);
 
-        $classes = Discover::in('Events', 'services', 'Services')->recursively()->all();
+        $classes = Discover::in('Events')->atNamespace('services')->recursively()->all();
 
         static::assertCount(4, $classes);
+
+        foreach ($classes as $class) {
+            static::assertInstanceOf(ReflectionClass::class, $class);
+        }
     }
 
     public function test_filters_by_instance_of_interface(): void
@@ -135,8 +130,13 @@ class DiscoverTest extends TestCase
         static::assertCount(2, $classes);
         static::assertTrue($classes->has(\App\Events\Foo::class));
         static::assertTrue($classes->has(\App\Events\Bar\Baz\Cougar::class));
+    }
 
-        $classes = Discover::in('Events')->recursively()->withMethod('protectedFunction')->all();
+    public function test_filters_by_public_method_doesnt_take_hidden_methods(): void
+    {
+        $this->mockAllFiles();
+
+        $classes = Discover::in('Events')->recursively()->withMethod('protectedFunction', 'privateFunction')->all();
 
         static::assertEmpty($classes);
     }
@@ -159,12 +159,17 @@ class DiscoverTest extends TestCase
 
         $classes = Discover::in('Events')->recursively()->withMethodReflection('reflective',
             function (ReflectionMethod $method): bool {
-                return $method->getReturnType()->getName() === 'int';
+                return $method->getReturnType()?->getName() === 'int';
             }
         )->orInvokable()->all();
 
         static::assertCount(1, $classes);
         static::assertTrue($classes->has(\App\Events\Foo::class));
+    }
+
+    public function test_filters_by_method_using_reflection_doesnt_find_non_existent_method(): void
+    {
+        $this->mockAllFiles();
 
         $classes = Discover::in('Events')->recursively()->withMethodReflection('invalid', fn() => true)->all();
 
@@ -180,8 +185,13 @@ class DiscoverTest extends TestCase
         static::assertCount(2, $classes);
         static::assertTrue($classes->has(\App\Events\Bar\Quz::class));
         static::assertTrue($classes->has(\App\Events\Bar\Baz\Cougar::class));
+    }
 
-        $classes = Discover::in('Events')->recursively()->withProperty('protectedString')->all();
+    public function test_filters_by_public_property_doesnt_find_hidden_properties(): void
+    {
+        $this->mockAllFiles();
+
+        $classes = Discover::in('Events')->recursively()->withProperty('protectedString', 'privateString')->all();
 
         static::assertEmpty($classes);
     }

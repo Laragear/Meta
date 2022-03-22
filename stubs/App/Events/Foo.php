@@ -22,6 +22,11 @@ class Foo implements TestInterface
 
     }
 
+    private function privateFunction()
+    {
+
+    }
+
     public function reflective(Fluent $fluent): int
     {
 

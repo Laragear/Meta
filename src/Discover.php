@@ -3,18 +3,21 @@
 namespace Laragear\Meta;
 
 use Closure;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use SplFixedArray;
 use Symfony\Component\Finder\SplFileInfo;
+use function app;
 use function array_filter;
 use function class_uses_recursive;
 use function in_array;
+use function trim;
 use function ucfirst;
 use const DIRECTORY_SEPARATOR;
 
@@ -24,30 +27,54 @@ use const DIRECTORY_SEPARATOR;
 class Discover
 {
     /**
+     * Project path where all discoveries will be done.
+     *
+     * @var string
+     */
+    protected string $projectPath;
+
+    /**
      * Create a new Discover instance.
      *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  string  $basePath
      * @param  string  $path
-     * @param  string  $rootPath
-     * @param  string  $rootNamespace
-     * @param  \Illuminate\Support\Collection<string, \ReflectionClass>|null  $classes
+     * @param  string  $baseNamespace
      * @param  bool  $recursive
      * @param  bool  $invokable
      * @param  array  $filters
      */
     public function __construct(
-        protected string $basePath,
-        protected string $path,
-        protected string $rootPath,
-        protected string $rootNamespace,
-        protected ?Collection $classes = null,
+        protected Application $app,
+        protected string $path = '',
+        protected string $basePath = '',
+        protected string $baseNamespace = '',
         protected bool $recursive = false,
         protected bool $invokable = false,
         protected array $filters = [
             'class' => null, 'method' => null, 'property' => null, 'using' => null,
         ],
     ) {
-        //
+        $this->projectPath = $this->app->basePath();
+
+        $this->baseNamespace = $this->baseNamespace ?: $this->app->getNamespace();
+        $this->basePath = $this->basePath
+            ?: Str::of($this->app->path())->after($this->projectPath)->trim(DIRECTORY_SEPARATOR);
+    }
+
+    /**
+     * Changes the base location and root namespace to discover files.
+     *
+     * @param  string  $baseNamespace
+     * @param  string|null  $basePath
+     * @return $this
+     */
+    public function atNamespace(string $baseNamespace, string $basePath = null): static
+    {
+        $this->baseNamespace = Str::finish(ucfirst($baseNamespace), '\\');
+        $this->basePath = trim($basePath ?: $baseNamespace, '\\');
+
+        return $this;
     }
 
     /**
@@ -79,18 +106,6 @@ class Discover
 
             return true;
         };
-
-        return $this;
-    }
-
-    /**
-     * Adds the classes that are invokable when filtering by methods.
-     *
-     * @return $this
-     */
-    public function orInvokable(): static
-    {
-        $this->invokable = true;
 
         return $this;
     }
@@ -133,6 +148,18 @@ class Discover
         $this->filters['method'] = static function (ReflectionClass $class) use ($method, $callback): bool {
             return $class->hasMethod($method) && $callback($class->getMethod($method));
         };
+
+        return $this;
+    }
+
+    /**
+     * Adds the classes that are invokable when filtering by methods.
+     *
+     * @return $this
+     */
+    public function orInvokable(): static
+    {
+        $this->invokable = true;
 
         return $this;
     }
@@ -201,78 +228,83 @@ class Discover
     }
 
     /**
-     * Builds the finder instance to locate the files.
-     *
-     * @return Collection<int, \Symfony\Component\Finder\SplFileInfo>
-     */
-    protected function getFiles(): Collection
-    {
-        $path = $this->basePath.DIRECTORY_SEPARATOR.$this->rootPath.DIRECTORY_SEPARATOR.$this->path;
-
-        return new Collection($this->recursive ? File::allFiles($path) : File::files($path));
-    }
-
-    /**
-     * Returns a Lazy Collection for all the classes found.
+     * Returns a Collection for all the classes found.
      *
      * @return \Illuminate\Support\Collection<string, \ReflectionClass>
      */
     public function all(): Collection
     {
-        if (!$this->classes) {
-            $this->classes = new Collection();
+        $classes = new Collection;
 
-            $filters = array_filter($this->filters);
+        $filters = array_filter($this->filters);
 
-            foreach ($this->getFiles() as $file) {
-                try {
-                    $reflection = new ReflectionClass($this->classFromFile($file));
-                } catch (ReflectionException) {
-                    continue;
+        foreach ($this->listAllFiles() as $file) {
+            try {
+                $reflection = new ReflectionClass($this->classFromFile($file));
+            } catch (ReflectionException) {
+                continue;
+            }
+
+            if (!$reflection->isInstantiable()) {
+                continue;
+            }
+
+            $passes = true;
+
+            foreach ($filters as $callback) {
+                if (!$callback($reflection)) {
+                    $passes = false;
+                    break;
                 }
+            }
 
-                if (!$reflection->isInstantiable()) {
-                    continue;
-                }
-
-                $passes = true;
-
-                foreach ($filters as $callback) {
-                    if (!$callback($reflection)) {
-                        $passes = false;
-                        break;
-                    }
-                }
-
-                if ($passes) {
-                    $this->classes->put($reflection->name, $reflection);
-                }
+            if ($passes) {
+                $classes->put($reflection->name, $reflection);
             }
         }
 
-        return $this->classes;
+        return $classes;
     }
 
     /**
-     * Returns a new instance of the Discoverer.
+     * Builds the finder instance to locate the files.
      *
-     * @param  string  $path  The path to look for, like `Events` or `Models`.
-     * @param  string|null  $rootPath  The base path, like `app` or `services`.
-     * @param  string|null  $rootNamespace  The base namespace, like `App` or `Service`.
+     * @return \Illuminate\Support\Collection<int, \Symfony\Component\Finder\SplFileInfo>
+     */
+    protected function listAllFiles(): Collection
+    {
+        return new Collection(
+            $this->recursive
+                ? $this->app->make('files')->allFiles($this->buildPath())
+                : $this->app->make('files')->files($this->buildPath())
+        );
+    }
+
+    /**
+     * Build the path to search for files.
+     *
+     * @return string
+     */
+    protected function buildPath(): string
+    {
+        return Str::of($this->path)
+            ->when($this->path, static function (Stringable $string): Stringable {
+                return $string->start('\\');
+            })
+            ->prepend($this->basePath)
+            ->start('\\')
+            ->prepend($this->projectPath);
+    }
+
+    /**
+     * Create a new instance of the discoverer.
+     *
+     * @param  string  $dir
      * @return static
      */
-    public static function in(string $path, string $rootPath = null, string $rootNamespace = null): static
+    public static function in(string $dir): static
     {
-        $app = app();
-
-        // If there is no root path, we will guess it from the application default.
-        if (!$rootPath) {
-            $rootPath = Str::of($app->path())->after($app->basePath())->ltrim(DIRECTORY_SEPARATOR)->toString();
-        }
-
-        $rootNamespace = Str::of($rootNamespace ?? $app->getNamespace())->finish('\\')->toString();
-
-        return new static($app->basePath(), $path, $rootPath, $rootNamespace);
+        return new static(app(), $dir);
     }
 
     /**
@@ -284,13 +316,13 @@ class Discover
     protected function classFromFile(SplFileInfo $file): string
     {
         return Str::of($file->getRealPath())
-            ->after($this->basePath)
+            ->after($this->projectPath)
             ->trim(DIRECTORY_SEPARATOR)
             ->beforeLast('.php')
             ->ucfirst()
             ->replace(
-                [DIRECTORY_SEPARATOR, ucfirst($this->rootPath.'\\')],
-                ['\\', $this->rootNamespace],
+                [DIRECTORY_SEPARATOR, ucfirst($this->basePath.'\\')],
+                ['\\', $this->baseNamespace],
             );
     }
 }

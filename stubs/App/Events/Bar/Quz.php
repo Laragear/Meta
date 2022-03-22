@@ -8,5 +8,7 @@ class Quz
 
     protected string $protectedString;
 
+    private string $privateString;
+
     use Qux;
 }

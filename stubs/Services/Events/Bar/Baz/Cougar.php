@@ -2,14 +2,7 @@
 
 namespace Services\Events\Bar\Baz;
 
-use Services\Events\Bar\Quz;
-
-class Cougar extends Quz
+class Cougar
 {
-    use \Services\Events\Bar\Cougar;
 
-    public function handleSomething()
-    {
-
-    }
 }
