@@ -35,7 +35,7 @@ trait ExtendsBuilder
                 static function (ReflectionMethod $method): string {
                     return $method->getName();
                 },
-                (new ReflectionClass($this))->getMethods(ReflectionMethod::IS_STATIC | ReflectionMethod::IS_STATIC)
+                (new ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_STATIC)
             ));
         }
 
