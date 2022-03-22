@@ -1,0 +1,69 @@
+{
+    "name": "laragear/meta",
+    "description": "A Laravel Package helper for Laravel Packages",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "keywords": [
+        "laravel",
+        "package"
+    ],
+    "authors": [
+        {
+            "name": "Italo Israel Baeza Cabrera",
+            "email": "DarkGhostHunter@Gmail.com",
+            "homepage": "https://patreon.com/packagesforlaravel"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/Laragear/Meta",
+        "issues": "https://github.com/Laragear/Meta/issues"
+    },
+    "require": {
+        "php": ">=8.0.2",
+        "laravel/breeze": "1.*"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.5",
+        "orchestra/testbench": "7.*",
+        "phpunit/phpunit": "^9.5.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laragear\\Meta\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests",
+            "App\\": "stubs/App",
+            "Services\\": "stubs/Services"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --coverage-clover build/logs/clover.xml",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "funding": [
+        {
+            "type": "Patreon",
+            "url": "https://patreon.com/PackagesForLaravel"
+        },
+        {
+            "type": "Ko-Fi",
+            "url": "https://ko-fi.com/DarkGhostHunter"
+        },
+        {
+            "type": "Buy me a cofee",
+            "url": "https://www.buymeacoffee.com/darkghosthunter"
+        },
+        {
+            "type": "Paypal",
+            "url": "https://paypal.me/darkghosthunter"
+        }
+    ]
+}
