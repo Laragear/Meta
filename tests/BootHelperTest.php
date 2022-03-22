@@ -134,7 +134,7 @@ class BootHelperTest extends TestCase
         $schedule = $this->app->make(Schedule::class);
 
         static::assertCount(1, $schedule->events());
-        static::assertSame('"C:\tools\php81\php.exe" "artisan" inspire', $schedule->events()[0]->command);
+        static::assertStringContainsString('inspire', $schedule->events()[0]->command);
     }
 }
 

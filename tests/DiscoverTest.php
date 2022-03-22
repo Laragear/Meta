@@ -91,29 +91,14 @@ class DiscoverTest extends TestCase
         static::assertCount(4, $classes);
     }
 
-    public function test_uses_different_root_path(): void
-    {
-        File::expects('files')->with($this->app->basePath('services'.DS.'Events'))->andReturn([
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Foo.php'), '', $this->app->basePath('Services'.DS.'Events')),
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar.php'), '', $this->app->basePath('Services'.DS.'Events')),
-        ]);
-
-        $classes = Discover::in('Events', 'services')->all();
-
-        static::assertCount(2, $classes);
-    }
 
     public function test_uses_different_root_path_and_root_namespace(): void
     {
         File::shouldReceive('allFiles')->with($this->app->basePath('services'.DS.'Events'))->andReturn([
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Foo.php'), '', $this->app->basePath('Services'.DS.'Events')),
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar.php'), '', $this->app->basePath('Services'.DS.'Events')),
-            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Quz.php'), '', $this->app->basePath('Services'.DS.'Events'.DS.'Bar')),
-            new SplFileInfo(
-                $this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Baz'.DS.'Cougar.php'),
-                '',
-                $this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Baz')
-            ),
+            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Foo.php'), '', ''),
+            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar.php'), '', ''),
+            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Quz.php'), '', ''),
+            new SplFileInfo($this->app->basePath('Services'.DS.'Events'.DS.'Bar'.DS.'Baz'.DS.'Cougar.php'), '', ''),
         ]);
 
         $classes = Discover::in('Events', 'services', 'Services')->recursively()->all();
