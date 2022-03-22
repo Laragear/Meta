@@ -289,10 +289,10 @@ class Discover
     {
         return Str::of($this->path)
             ->when($this->path, static function (Stringable $string): Stringable {
-                return $string->start('\\');
+                return $string->start(DIRECTORY_SEPARATOR);
             })
             ->prepend($this->basePath)
-            ->start('\\')
+            ->start(DIRECTORY_SEPARATOR)
             ->prepend($this->projectPath);
     }
 
