@@ -71,9 +71,9 @@ trait WithEnvironmentFile
             return false;
         }
 
-        $string = $lines->collect()->put($key, $value)->implode(static function (string $value, string $key): string {
+        $string = $lines->collect()->put($key, $value)->map(static function (string $value, string $key): string {
             return "$key=$value" . PHP_EOL;
-        });
+        })->implode('');
 
         return (bool) File::put($string, $this->getLaravel()->basePath($file));
     }
