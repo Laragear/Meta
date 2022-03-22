@@ -3,10 +3,10 @@
 namespace Laragear\Meta\Database\Eloquent;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use ReflectionClass;
-use ReflectionMethod;
+use ReflectionMethod as Method;
 use SplFixedArray;
-use function array_map;
 
 /**
  * @internal
@@ -30,17 +30,24 @@ trait ExtendsBuilder
      */
     public function extend(Builder $query): void
     {
-        if (!isset(static::$methods)) {
-            static::$methods = SplFixedArray::fromArray(array_map(
-                static function (ReflectionMethod $method): string {
-                    return $method->getName();
-                },
-                (new ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_STATIC)
-            ));
-        }
-
-        foreach (static::$methods as $method) {
+        foreach (static::$methods ??= SplFixedArray::fromArray($this->filterMethods()->toArray()) as $method) {
             $query->macro($method, [static::class, $method]);
         }
+    }
+
+    /**
+     * Filters the methods of this Scope by those static and public.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function filterMethods(): Collection
+    {
+        return Collection::make((new ReflectionClass($this))->getMethods(Method::IS_PUBLIC | Method::IS_STATIC))
+            ->filter(static function (Method $method): string {
+                return $method->isPublic() && $method->isStatic();
+            })
+            ->map(static function (Method $method): string {
+                return $method->getName();
+            });
     }
 }

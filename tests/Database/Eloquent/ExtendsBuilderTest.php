@@ -26,11 +26,23 @@ class ExtendsBuilderTest extends TestCase
             {
                 return 'foo';
             }
+
+            protected static function dontExtend()
+            {
+
+            }
+
+            public function alsoDontExtend()
+            {
+
+            }
         };
 
         $builder->withGlobalScope('something', $scope);
 
         static::assertTrue($builder->hasMacro('test'));
+        static::assertFalse($builder->hasMacro('dontExtend'));
+        static::assertFalse($builder->hasMacro('alsoDontExtend'));
         static::assertSame('foo', $builder->test());
 
         $builder = User::query();
@@ -38,6 +50,8 @@ class ExtendsBuilderTest extends TestCase
         $builder->withGlobalScope('something', $scope);
 
         static::assertTrue($builder->hasMacro('test'));
+        static::assertFalse($builder->hasMacro('dontExtend'));
+        static::assertFalse($builder->hasMacro('alsoDontExtend'));
         static::assertSame('foo', $builder->test());
     }
 }
