@@ -4,5 +4,4 @@ namespace Services\Events;
 
 class Bar
 {
-
 }

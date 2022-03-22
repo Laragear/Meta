@@ -2,15 +2,15 @@
 
 namespace Tests;
 
+use const DIRECTORY_SEPARATOR as DS;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Laragear\Meta\Discover;
 use Mockery;
+use function realpath;
 use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Component\Finder\SplFileInfo;
-use function realpath;
-use const DIRECTORY_SEPARATOR as DS;
 
 class DiscoverTest extends TestCase
 {
@@ -81,7 +81,6 @@ class DiscoverTest extends TestCase
 
         static::assertCount(4, $classes);
     }
-
 
     public function test_uses_different_root_path_and_root_namespace(): void
     {
@@ -171,7 +170,7 @@ class DiscoverTest extends TestCase
     {
         $this->mockAllFiles();
 
-        $classes = Discover::in('Events')->recursively()->withMethodReflection('invalid', fn() => true)->all();
+        $classes = Discover::in('Events')->recursively()->withMethodReflection('invalid', fn () => true)->all();
 
         static::assertEmpty($classes);
     }

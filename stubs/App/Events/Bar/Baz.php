@@ -6,11 +6,9 @@ trait Baz
 {
     public function handle()
     {
-
     }
 
     public function __invoke()
     {
-
     }
 }
