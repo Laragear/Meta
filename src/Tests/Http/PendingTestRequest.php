@@ -2,15 +2,15 @@
 
 namespace Laragear\Meta\Tests\Http;
 
+use function array_merge;
 use Closure;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Response;
 use Illuminate\Http\Testing\File;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use Orchestra\Testbench\TestCase;
-use function array_merge;
 use function implode;
+use Orchestra\Testbench\TestCase;
 use function response;
 
 /**
@@ -41,8 +41,7 @@ class PendingTestRequest
         protected array $files = [],
         protected array $additionalMiddleware = [],
         protected ?Closure $controller = null,
-    )
-    {
+    ) {
         $this->controller = static function (): Response {
             return response();
         };
@@ -216,7 +215,7 @@ class PendingTestRequest
     protected function run(string $method): TestResponse
     {
         if ($this->parameters) {
-            $this->middleware .= ':'. implode(',', $this->parameters);
+            $this->middleware .= ':'.implode(',', $this->parameters);
         }
 
         $route = 'test_'.$method.'_'.Str::random();

@@ -53,18 +53,18 @@ class BootHelperTest extends TestCase
 
         /** @var \Illuminate\Contracts\Validation\Validator $validator */
         $validator = $this->app->make('validator')->make([
-            'pass' => 'test_foo'
+            'pass' => 'test_foo',
         ], [
-            'pass' => 'foo'
+            'pass' => 'foo',
         ]);
 
         static::assertFalse($validator->fails());
 
         /** @var \Illuminate\Contracts\Validation\Validator $validator */
         $validator = $this->app->make('validator')->make([
-            'pass' => 'invalid'
+            'pass' => 'invalid',
         ], [
-            'pass' => 'foo'
+            'pass' => 'foo',
         ]);
 
         static::assertTrue($validator->fails());
@@ -72,9 +72,9 @@ class BootHelperTest extends TestCase
 
         /** @var \Illuminate\Contracts\Validation\Validator $validator */
         $validator = $this->app->make('validator')->make([
-            'pass' => ''
+            'pass' => '',
         ], [
-            'pass' => 'foo'
+            'pass' => 'foo',
         ]);
 
         static::assertFalse($validator->fails());
@@ -88,9 +88,9 @@ class BootHelperTest extends TestCase
 
         /** @var \Illuminate\Contracts\Validation\Validator $validator */
         $validator = $this->app->make('validator')->make([
-            'pass' => ''
+            'pass' => '',
         ], [
-            'pass' => 'bar'
+            'pass' => 'bar',
         ]);
 
         static::assertTrue($validator->fails());
@@ -144,14 +144,14 @@ class TestServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->withExtending('test-manager-foo', 'foo', fn() => 'bar');
+        $this->withExtending('test-manager-foo', 'foo', fn () => 'bar');
         $this->withExtending('test-manager-bar', [
-            'foo' => fn() => 'bar',
-            'baz' => fn() => 'quz',
+            'foo' => fn () => 'bar',
+            'baz' => fn () => 'quz',
         ]);
 
-        $this->withValidationRule('foo', fn($key, $value) => $value === 'test_foo', 'test-foo-message');
-        $this->withValidationRule('bar', fn($key, $value) => $value === 'test_bar', 'test-bar-message', true);
+        $this->withValidationRule('foo', fn ($key, $value) => $value === 'test_foo', 'test-foo-message');
+        $this->withValidationRule('bar', fn ($key, $value) => $value === 'test_bar', 'test-bar-message', true);
 
         $this->withMiddleware(\Tests\Stubs\TestMiddleware::class);
 

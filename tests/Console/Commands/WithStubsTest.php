@@ -14,7 +14,8 @@ class WithStubsTest extends TestCase
     {
         parent::setUp();
 
-        $this->command = new class {
+        $this->command = new class
+        {
             use WithStubs;
 
             public function runPublishStub()
@@ -36,7 +37,7 @@ class WithStubsTest extends TestCase
         File::expects('put')->with('bar', 'test bar bar test')->andReturnTrue();
 
         $this->command->runPublishStub('foo', 'bar', [
-            'foo' => 'bar'
+            'foo' => 'bar',
         ]);
     }
 
@@ -47,7 +48,7 @@ class WithStubsTest extends TestCase
         File::expects('put')->never();
 
         $this->command->runPublishStub('foo', 'bar', [
-            'foo' => 'bar'
+            'foo' => 'bar',
         ]);
     }
 
@@ -58,7 +59,7 @@ class WithStubsTest extends TestCase
         File::expects('put')->with('bar', 'test bar bar test')->andReturnTrue();
 
         $this->command->runPublishStub('foo', 'bar', [
-            'foo' => 'bar'
+            'foo' => 'bar',
         ], true);
     }
 }

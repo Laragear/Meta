@@ -2,11 +2,11 @@
 
 namespace Laragear\Meta\Database\Eloquent;
 
+use function array_map;
 use Illuminate\Database\Eloquent\Builder;
 use ReflectionClass;
 use ReflectionMethod;
 use SplFixedArray;
-use function array_map;
 
 /**
  * @internal
@@ -30,7 +30,7 @@ trait ExtendsBuilder
      */
     public function extend(Builder $query): void
     {
-        if (!isset(static::$methods)) {
+        if (! isset(static::$methods)) {
             static::$methods = SplFixedArray::fromArray(array_map(
                 static function (ReflectionMethod $method): string {
                     return $method->getName();

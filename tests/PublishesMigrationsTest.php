@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\PublishesMigrations;
 use Laragear\Meta\Tests\InteractsWithServiceProvider;
-use Symfony\Component\Finder\SplFileInfo;
 use function now;
+use Symfony\Component\Finder\SplFileInfo;
 
 class PublishesMigrationsTest extends TestCase
 {
@@ -23,7 +23,8 @@ class PublishesMigrationsTest extends TestCase
 
         $this->travelTo(now()->startOfSecond());
 
-        $this->app->register(new class($this->app) extends ServiceProvider {
+        $this->app->register(new class($this->app) extends ServiceProvider
+        {
             use PublishesMigrations;
 
             public function boot(): void
@@ -33,11 +34,11 @@ class PublishesMigrationsTest extends TestCase
         });
 
         $this->assertPublishes(
-            $this->app->databasePath('migrations/' . now()->format('Y_m_d_His') . '_create_foo_table.php'), 'migrations'
+            $this->app->databasePath('migrations/'.now()->format('Y_m_d_His').'_create_foo_table.php'), 'migrations'
         );
 
         $this->assertPublishes(
-            $this->app->databasePath('migrations/' . now()->format('Y_m_d_His') . '_create_foo_table.php'), 'migrations'
+            $this->app->databasePath('migrations/'.now()->format('Y_m_d_His').'_create_foo_table.php'), 'migrations'
         );
     }
 }

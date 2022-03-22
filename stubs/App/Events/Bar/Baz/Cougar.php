@@ -10,6 +10,5 @@ class Cougar extends Quz
 
     public function handleSomething()
     {
-
     }
 }

@@ -15,8 +15,10 @@ class ExtendsBuilderTest extends TestCase
     {
         $builder = User::query();
 
-        $scope = new class implements Scope {
+        $scope = new class implements Scope
+        {
             use ExtendsBuilder;
+
             public function apply(Builder $builder, Model $model)
             {
                 //

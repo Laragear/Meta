@@ -2,12 +2,12 @@
 
 namespace Tests\Console\Commands;
 
+use function app;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\LazyCollection;
 use Laragear\Meta\Console\Commands\WithEnvironmentFile;
-use Tests\TestCase;
-use function app;
 use const PHP_EOL;
+use Tests\TestCase;
 
 class WithEnvironmentFileTest extends TestCase
 {
@@ -26,7 +26,8 @@ class WithEnvironmentFileTest extends TestCase
                 })
             );
 
-        $this->command = new class {
+        $this->command = new class
+        {
             use WithEnvironmentFile;
 
             public function contents()
@@ -47,8 +48,8 @@ class WithEnvironmentFileTest extends TestCase
             public function setPutEnvKey(string $key, string $value, bool $force = false): bool
             {
                 return $this->putEnvKey($key, $value, $force);
-
             }
+
             public function getLaravel()
             {
                 return app();
@@ -76,7 +77,7 @@ class WithEnvironmentFileTest extends TestCase
     public function test_puts_env_key(): void
     {
         File::expects('put')->with(
-            'FOO=BAR' . PHP_EOL . 'BAZ=QUZ' . PHP_EOL . 'QUX=COUGAR' . PHP_EOL,
+            'FOO=BAR'.PHP_EOL.'BAZ=QUZ'.PHP_EOL.'QUX=COUGAR'.PHP_EOL,
             $this->app->basePath('.env')
         )
             ->andReturnTrue();
@@ -94,7 +95,7 @@ class WithEnvironmentFileTest extends TestCase
     public function test_replaces_env_key_forcefully(): void
     {
         File::expects('put')->with(
-            'FOO=COUGAR' . PHP_EOL . 'BAZ=QUZ' . PHP_EOL,
+            'FOO=COUGAR'.PHP_EOL.'BAZ=QUZ'.PHP_EOL,
             $this->app->basePath('.env')
         )
             ->andReturnTrue();

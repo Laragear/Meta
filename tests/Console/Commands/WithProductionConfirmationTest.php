@@ -2,11 +2,11 @@
 
 namespace Tests\Console\Commands;
 
+use function app;
+use function func_get_args;
 use Laragear\Meta\Console\Commands\WithProductionConfirmation;
 use RuntimeException;
 use Tests\TestCase;
-use function app;
-use function func_get_args;
 
 class WithProductionConfirmationTest extends TestCase
 {
@@ -16,7 +16,8 @@ class WithProductionConfirmationTest extends TestCase
     {
         parent::setUp();
 
-        $this->command = new class {
+        $this->command = new class
+        {
             use WithProductionConfirmation;
 
             public bool $confirm = true;
@@ -31,6 +32,7 @@ class WithProductionConfirmationTest extends TestCase
             {
                 return $this->blockOnProduction(...func_get_args());
             }
+
             public function confirm(string $ask): bool
             {
                 $this->asked = $ask;

@@ -58,6 +58,7 @@ trait WithEnvironmentFile
      * @param  bool  $force  If false, no new value will replace the original.
      * @param  string  $file
      * @return bool
+     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function putEnvKey(string $key, string $value, bool $force = false, string $file = '.env'): bool
@@ -72,7 +73,7 @@ trait WithEnvironmentFile
         }
 
         $string = $lines->collect()->put($key, $value)->map(static function (string $value, string $key): string {
-            return "$key=$value" . PHP_EOL;
+            return "$key=$value".PHP_EOL;
         })->implode('');
 
         return (bool) File::put($string, $this->getLaravel()->basePath($file));

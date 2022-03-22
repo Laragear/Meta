@@ -14,7 +14,8 @@ class WithFileComparisonTest extends TestCase
     {
         parent::setUp();
 
-        $this->command = new class {
+        $this->command = new class
+        {
             use WithFileComparison;
 
             public function runFileEqualTo(string $comparable, string $path): bool
