@@ -2,7 +2,6 @@
 
 namespace Laragear\Meta\Database\Eloquent;
 
-use function array_map;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use ReflectionClass;

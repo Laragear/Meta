@@ -31,12 +31,10 @@ class ExtendsBuilderTest extends TestCase
 
             protected static function dontExtend()
             {
-
             }
 
             public function alsoDontExtend()
             {
-
             }
         };
 
