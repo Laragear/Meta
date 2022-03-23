@@ -2,11 +2,13 @@
 
 namespace Tests\Console\Commands;
 
+use Generator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\LazyCollection;
 use Laragear\Meta\Console\Commands\WithEnvironmentFile;
 use Tests\TestCase;
 use function app;
+use function func_get_args;
 use const PHP_EOL;
 
 class WithEnvironmentFileTest extends TestCase
@@ -17,9 +19,10 @@ class WithEnvironmentFileTest extends TestCase
     {
         parent::setUp();
 
-        File::shouldReceive()->lines($this->app->basePath('.env'))
+        File::expects('lines')
+            ->with($this->app->basePath('.env'))
             ->andReturn(
-                LazyCollection::make(function () {
+                LazyCollection::make(static function (): Generator {
                     foreach (['FOO=BAR', 'BAZ=QUZ', 'QUX='] as $item) {
                         yield $item;
                     }
@@ -30,24 +33,14 @@ class WithEnvironmentFileTest extends TestCase
         {
             use WithEnvironmentFile;
 
-            public function contents()
+            public function runGetEnvKey(): mixed
             {
-                return $this->envFile();
+                return $this->getEnvKey(...func_get_args());
             }
 
-            public function getHasEnvKey(string $key)
+            public function setPutEnvKey(): mixed
             {
-                return $this->hasEnvKey($key);
-            }
-
-            public function getMissingEnvKey(string $key)
-            {
-                return $this->missingEnvKey($key);
-            }
-
-            public function setPutEnvKey(string $key, string $value, bool $force = false): bool
-            {
-                return $this->putEnvKey($key, $value, $force);
+                return $this->putEnvKey(...func_get_args());
             }
 
             public function getLaravel()
@@ -57,34 +50,20 @@ class WithEnvironmentFileTest extends TestCase
         };
     }
 
-    public function test_command_retrieve_files(): void
+    public function test_get_env_key(): void
     {
-        static::assertSame(['FOO' => 'BAR', 'BAZ' => 'QUZ'], $this->command->contents()->toArray());
-    }
-
-    public function test_has_env_key(): void
-    {
-        static::assertTrue($this->command->getHasEnvKey('FOO'));
-        static::assertFalse($this->command->getHasEnvKey('BAR'));
-        static::assertFalse($this->command->getHasEnvKey('QUZ'));
-    }
-
-    public function test_missing_env_key(): void
-    {
-        static::assertFalse($this->command->getMissingEnvKey('FOO'));
-        static::assertTrue($this->command->getMissingEnvKey('BAR'));
-        static::assertTrue($this->command->getMissingEnvKey('QUZ'));
+        static::assertSame('BAR', $this->command->runGetEnvKey('FOO'));
+        static::assertSame('', $this->command->runGetEnvKey('QUX'));
+        static::assertFalse($this->command->runGetEnvKey('TEST'));
     }
 
     public function test_puts_env_key(): void
     {
-        File::expects('put')->with(
-            'FOO=BAR'.PHP_EOL.'BAZ=QUZ'.PHP_EOL.'QUX=COUGAR'.PHP_EOL,
-            $this->app->basePath('.env')
-        )
+        File::expects('put')
+            ->with($this->app->basePath('.env'), 'FOO=BAR'.PHP_EOL.'BAZ=QUZ'.PHP_EOL.'QUX='.PHP_EOL.'TEST=VALUE')
             ->andReturnTrue();
 
-        static::assertTrue($this->command->setPutEnvKey('QUX', 'COUGAR'));
+        static::assertTrue($this->command->setPutEnvKey('TEST', 'VALUE'));
     }
 
     public function test_doesnt_replaces_env_key(): void
@@ -96,10 +75,8 @@ class WithEnvironmentFileTest extends TestCase
 
     public function test_replaces_env_key_forcefully(): void
     {
-        File::expects('put')->with(
-            'FOO=COUGAR'.PHP_EOL.'BAZ=QUZ'.PHP_EOL,
-            $this->app->basePath('.env')
-        )
+        File::expects('put')
+            ->with($this->app->basePath('.env'), 'FOO=COUGAR'.PHP_EOL.'BAZ=QUZ'.PHP_EOL.'QUX=')
             ->andReturnTrue();
 
         static::assertTrue($this->command->setPutEnvKey('FOO', 'COUGAR', true));

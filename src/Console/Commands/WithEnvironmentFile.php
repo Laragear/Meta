@@ -3,9 +3,7 @@
 namespace Laragear\Meta\Console\Commands;
 
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Str;
-use function trim;
 use const PHP_EOL;
 
 /**
@@ -14,41 +12,23 @@ use const PHP_EOL;
 trait WithEnvironmentFile
 {
     /**
-     * Returns a LazyCollection of key->values from the environment file.
-     *
-     * @param  string  $file
-     * @return \Illuminate\Support\LazyCollection<string, string>
-     */
-    protected function envFile(string $file = '.env'): LazyCollection
-    {
-        return File::lines($this->getLaravel()->basePath($file))
-            ->mapWithKeys(static function (string $line): array {
-                return [Str::before($line, '=') => trim(Str::after($line, '='))];
-            });
-    }
-
-    /**
-     * Checks a key exists in the environment file and is not empty.
+     * Returns the literal string value of a given environment key.
      *
      * @param  string  $key
      * @param  string  $file
-     * @return bool
+     * @return string|false It will return false if the environment key doesn't exist.
      */
-    protected function hasEnvKey(string $key, string $file = '.env'): bool
+    protected function getEnvKey(string $key, string $file = '.env'): string|false
     {
-        return null !== $this->envFile($file)->get(Str::upper($key));
-    }
+        $key = Str::upper($key);
 
-    /**
-     * Checks if a key is missing in the environment file and is not empty.
-     *
-     * @param  string  $key
-     * @param  string  $file
-     * @return bool
-     */
-    protected function missingEnvKey(string $key, string $file = '.env'): bool
-    {
-        return ! $this->hasEnvKey($key, $file);
+        $file = $this->getLaravel()->basePath($file);
+
+        $key = File::lines($file)->first(static function (string $line) use ($key): bool {
+            return $key === Str::before($line, '=');
+        });
+
+        return $key ? Str::after($key, '=') : false;
     }
 
     /**
@@ -66,17 +46,20 @@ trait WithEnvironmentFile
     {
         $key = Str::upper($key);
 
-        $lines = $this->envFile($file);
+        $file = $this->getLaravel()->basePath($file);
 
-        // Bail out if we're not forcing the inclusion, or the key already exists.
-        if (! $force && $lines->has($key)) {
+        $lines = File::lines($file)->collect();
+
+        $keyIndex = $lines->search(static function (string $line) use ($key): bool {
+            return $key === Str::before($line, '=');
+        });
+
+        if ($keyIndex === false) {
+            $keyIndex = $lines->keys()->last() + 1;
+        } elseif (!$force) {
             return false;
         }
 
-        $string = $lines->collect()->put($key, $value)->map(static function (string $value, string $key): string {
-            return "$key=$value".PHP_EOL;
-        })->implode('');
-
-        return (bool) File::put($string, $this->getLaravel()->basePath($file));
+        return File::put($file, $lines->put($keyIndex, "$key=$value")->implode(PHP_EOL));
     }
 }
