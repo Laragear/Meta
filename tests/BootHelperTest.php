@@ -10,7 +10,7 @@ use Laragear\Meta\BootHelpers;
 
 class BootHelperTest extends TestCase
 {
-    public function test_extends_manager(): void
+    public function test_with_driver(): void
     {
         $this->app->singleton('test-manager-foo', function ($app) {
             return new class($app) extends Manager
@@ -27,7 +27,7 @@ class BootHelperTest extends TestCase
         static::assertSame('bar', $this->app->make('test-manager-foo')->driver('foo'));
     }
 
-    public function test_extends_manager_with_array(): void
+    public function test_with_driver_array(): void
     {
         $this->app->singleton('test-manager-bar', function ($app) {
             return new class($app) extends Manager
@@ -144,8 +144,8 @@ class TestServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->withExtending('test-manager-foo', 'foo', fn () => 'bar');
-        $this->withExtending('test-manager-bar', [
+        $this->withDriver('test-manager-foo', 'foo', fn () => 'bar');
+        $this->withDriver('test-manager-bar', [
             'foo' => fn () => 'bar',
             'baz' => fn () => 'quz',
         ]);
