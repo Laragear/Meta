@@ -2,16 +2,15 @@
 
 namespace Laragear\Meta\Tests\Http;
 
-use function array_merge;
 use Closure;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Response;
 use Illuminate\Http\Testing\File;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use function implode;
 use Orchestra\Testbench\TestCase;
-use function response;
+use function array_merge;
+use function implode;
 
 /**
  * @internal
@@ -19,31 +18,57 @@ use function response;
 class PendingTestRequest
 {
     /**
+     * The data to pass to the request.
+     *
+     * @var array
+     */
+    protected array $data = [];
+
+    /**
+     * The cookies to include into the request.
+     *
+     * @var array
+     */
+    protected array $cookies = [];
+
+    /**
+     * The files to include into the request.
+     *
+     * @var array
+     */
+    protected array $files = [];
+
+    /**
+     * Any additional middleware that will be included in the test route.
+     *
+     * @var array
+     */
+    protected array $additionalMiddleware = [];
+
+    /**
+     * An optional callback to act as an action controller.
+     *
+     * @var \Closure
+     */
+    protected Closure $controller;
+
+    /**
      * Create a new pending request.
      *
      * @param  \Orchestra\Testbench\TestCase  $testCase
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  string  $middleware
      * @param  array  $parameters
-     * @param  array  $data
-     * @param  array  $cookies
-     * @param  array  $files
-     * @param  array  $additionalMiddleware
-     * @param  \Closure|null  $controller
      */
     public function __construct(
         protected TestCase $testCase,
         protected Application $app,
         protected string $middleware,
-        protected array $parameters = [],
-        protected array $data = [],
-        protected array $cookies = [],
-        protected array $files = [],
-        protected array $additionalMiddleware = [],
-        protected ?Closure $controller = null,
-    ) {
+        protected array $parameters,
+    )
+    {
         $this->controller = static function (): Response {
-            return response();
+            return new Response();
         };
     }
 
