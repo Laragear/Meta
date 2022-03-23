@@ -5,7 +5,7 @@ namespace Tests\Http\Middleware;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
-use Laragear\Meta\Tests\InteractsWithServiceProvider;
+use Laragear\Meta\Testing\InteractsWithServiceProvider;
 use Tests\TestCase;
 
 class MiddlewareDeclarationTest extends TestCase

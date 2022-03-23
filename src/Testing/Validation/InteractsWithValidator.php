@@ -1,6 +1,6 @@
 <?php
 
-namespace Laragear\Meta\Tests\Validation;
+namespace Laragear\Meta\Testing\Validation;
 
 /**
  * @internal

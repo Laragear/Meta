@@ -1,6 +1,6 @@
 <?php
 
-namespace Laragear\Meta\Tests;
+namespace Laragear\Meta\Testing;
 
 use Closure;
 use LogicException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Laragear\Meta\Tests\Http;
+namespace Laragear\Meta\Testing\Http;
 
 use JetBrains\PhpStorm\Pure;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Tests;
+namespace Tests\Testing;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
-use Laragear\Meta\Tests\InteractsWithServices;
+use Laragear\Meta\Testing\InteractsWithServices;
 use Mockery\MockInterface;
 use Tests\TestCase;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Laragear\Meta\Tests;
+namespace Laragear\Meta\Testing;
 
 use DateTimeInterface;
 use Illuminate\Console\Scheduling\Event;

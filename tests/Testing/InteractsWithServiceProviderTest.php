@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Tests;
+namespace Tests\Testing;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\BootHelpers;
-use Laragear\Meta\Tests\InteractsWithServiceProvider;
+use Laragear\Meta\Testing\InteractsWithServiceProvider;
 use PHPUnit\Framework\AssertionFailedError;
 use Tests\TestCase;
 
