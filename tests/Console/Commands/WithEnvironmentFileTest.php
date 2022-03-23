@@ -73,6 +73,7 @@ class WithEnvironmentFileTest extends TestCase
     {
         static::assertFalse($this->command->getMissingEnvKey('FOO'));
         static::assertTrue($this->command->getMissingEnvKey('BAR'));
+        static::assertTrue($this->command->getMissingEnvKey('QUZ'));
     }
 
     public function test_puts_env_key(): void
