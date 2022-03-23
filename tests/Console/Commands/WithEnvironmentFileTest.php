@@ -2,12 +2,12 @@
 
 namespace Tests\Console\Commands;
 
-use function app;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\LazyCollection;
 use Laragear\Meta\Console\Commands\WithEnvironmentFile;
-use const PHP_EOL;
 use Tests\TestCase;
+use function app;
+use const PHP_EOL;
 
 class WithEnvironmentFileTest extends TestCase
 {
@@ -20,7 +20,7 @@ class WithEnvironmentFileTest extends TestCase
         File::shouldReceive()->lines($this->app->basePath('.env'))
             ->andReturn(
                 LazyCollection::make(function () {
-                    foreach (['FOO=BAR', 'BAZ=QUZ'] as $item) {
+                    foreach (['FOO=BAR', 'BAZ=QUZ', 'QUX='] as $item) {
                         yield $item;
                     }
                 })
@@ -66,6 +66,7 @@ class WithEnvironmentFileTest extends TestCase
     {
         static::assertTrue($this->command->getHasEnvKey('FOO'));
         static::assertFalse($this->command->getHasEnvKey('BAR'));
+        static::assertFalse($this->command->getHasEnvKey('QUZ'));
     }
 
     public function test_missing_env_key(): void

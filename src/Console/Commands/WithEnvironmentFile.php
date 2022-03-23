@@ -5,6 +5,7 @@ namespace Laragear\Meta\Console\Commands;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Str;
+use function trim;
 use const PHP_EOL;
 
 /**
@@ -22,12 +23,12 @@ trait WithEnvironmentFile
     {
         return File::lines($this->getLaravel()->basePath($file))
             ->mapWithKeys(static function (string $line): array {
-                return [Str::before($line, '=') => Str::after($line, '=')];
+                return [Str::before($line, '=') => trim(Str::after($line, '='))];
             });
     }
 
     /**
-     * Checks a key exists in the environment file and is not null.
+     * Checks a key exists in the environment file and is not empty.
      *
      * @param  string  $key
      * @param  string  $file
@@ -35,11 +36,11 @@ trait WithEnvironmentFile
      */
     protected function hasEnvKey(string $key, string $file = '.env'): bool
     {
-        return $this->envFile($file)->has(Str::upper($key));
+        return null !== $this->envFile($file)->get(Str::upper($key));
     }
 
     /**
-     * Checks if a key is missing in the environment file and is not null.
+     * Checks if a key is missing in the environment file and is not empty.
      *
      * @param  string  $key
      * @param  string  $file
