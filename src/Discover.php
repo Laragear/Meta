@@ -2,24 +2,24 @@
 
 namespace Laragear\Meta;
 
-use function app;
-use function array_filter;
-use function class_uses_recursive;
 use Closure;
-use const DIRECTORY_SEPARATOR;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use function in_array;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use SplFixedArray;
 use Symfony\Component\Finder\SplFileInfo;
+use function app;
+use function array_filter;
+use function class_uses_recursive;
+use function in_array;
 use function trim;
 use function ucfirst;
+use const DIRECTORY_SEPARATOR;
 
 /**
  * @internal
@@ -34,32 +34,49 @@ class Discover
     protected string $projectPath;
 
     /**
+     * If the discovery should be recursive.
+     *
+     * @var bool
+     */
+    protected bool $recursive = false;
+
+    /**
+     * If the method filtering should also take into account invokable classes.
+     *
+     * @var bool
+     */
+    protected bool $invokable = false;
+
+    /**
+     * List of filters to iterate on each discovered class.
+     *
+     * @var array|null[]
+     */
+    protected array $filters = ['class' => null, 'method' => null, 'property' => null, 'using' => null];
+
+    /**
      * Create a new Discover instance.
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @param  string  $basePath
      * @param  string  $path
+     * @param  string  $basePath
      * @param  string  $baseNamespace
-     * @param  bool  $recursive
-     * @param  bool  $invokable
-     * @param  array  $filters
      */
     public function __construct(
         protected Application $app,
         protected string $path = '',
         protected string $basePath = '',
         protected string $baseNamespace = '',
-        protected bool $recursive = false,
-        protected bool $invokable = false,
-        protected array $filters = [
-            'class' => null, 'method' => null, 'property' => null, 'using' => null,
-        ],
     ) {
         $this->projectPath = $this->app->basePath();
 
-        $this->baseNamespace = $this->baseNamespace ?: $this->app->getNamespace();
-        $this->basePath = $this->basePath
-            ?: Str::of($this->app->path())->after($this->projectPath)->trim(DIRECTORY_SEPARATOR);
+        if (!$this->baseNamespace) {
+            $this->baseNamespace = $this->app->getNamespace();
+        }
+
+        if (!$this->basePath) {
+            $this->basePath = Str::of($this->app->path())->after($this->projectPath)->trim(DIRECTORY_SEPARATOR);
+        }
     }
 
     /**
@@ -99,7 +116,7 @@ class Discover
     {
         $this->filters['class'] = static function (ReflectionClass $class) use ($classes): bool {
             foreach ($classes as $comparable) {
-                if (! $class->isSubclassOf($comparable)) {
+                if (!$class->isSubclassOf($comparable)) {
                     return false;
                 }
             }
@@ -119,7 +136,7 @@ class Discover
     public function withMethod(string ...$methods): static
     {
         $this->filters['method'] = function (ReflectionClass $class) use ($methods): bool {
-            if ($this->invokable && ! in_array('__invoke', $methods, true)) {
+            if ($this->invokable && !in_array('__invoke', $methods, true)) {
                 $methods[] = '__invoke';
             }
 
@@ -244,14 +261,14 @@ class Discover
                 continue;
             }
 
-            if (! $reflection->isInstantiable()) {
+            if (!$reflection->isInstantiable()) {
                 continue;
             }
 
             $passes = true;
 
             foreach ($filters as $callback) {
-                if (! $callback($reflection)) {
+                if (!$callback($reflection)) {
                     $passes = false;
                     break;
                 }
