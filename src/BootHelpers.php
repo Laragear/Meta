@@ -9,8 +9,8 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Manager;
-use function is_string;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
+use function is_string;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ trait BootHelpers
      * @param  callable|string|null  $callback
      * @return void
      */
-    protected function withExtending(string $service, string|array $driver, callable|string $callback = null): void
+    protected function withDriver(string $service, string|array $driver, callable|string $callback = null): void
     {
         if (is_string($driver)) {
             $driver = [$driver => $callback];
