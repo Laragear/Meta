@@ -5,12 +5,14 @@ namespace Laragear\Meta;
 use Closure;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Manager;
-use function is_string;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
+use function is_callable;
+use function is_string;
 
 /**
  * @internal
@@ -42,20 +44,22 @@ trait BootHelpers
      * Registers one or many validation rules.
      *
      * @param  string  $rule
-     * @param  callable|class-string|string  $callback
-     * @param  string|null  $message
+     * @param  callable|string  $callback
+     * @param  callable|string|null  $message
      * @param  bool  $implicit
      * @return void
      */
     protected function withValidationRule(
         string $rule,
         callable|string $callback,
-        string $message = null,
+        callable|string $message = null,
         bool $implicit = false
     ): void {
         $this->callAfterResolving(
             'validator',
-            static function (Factory $validator) use ($message, $callback, $implicit, $rule): void {
+            static function (Factory $validator, Application $app) use ($message, $callback, $implicit, $rule): void {
+                $message = is_callable($message) ? $message($validator, $app) : $message;
+
                 $implicit
                     ? $validator->extendImplicit($rule, $callback, $message)
                     : $validator->extend($rule, $callback, $message);
@@ -114,8 +118,8 @@ trait BootHelpers
     protected function withSchedule(Closure $callback): void
     {
         if ($this->app->runningInConsole()) {
-            $this->app->booted(function () use ($callback): void {
-                $callback($this->app->make(Schedule::class));
+            $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($callback): void {
+                $callback($schedule);
             });
         }
     }
