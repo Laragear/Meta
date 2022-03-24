@@ -19,7 +19,7 @@ class WithEnvironmentFileTest extends TestCase
     {
         parent::setUp();
 
-        File::expects('lines')
+        File::shouldReceive('lines')
             ->with($this->app->basePath('.env'))
             ->andReturn(
                 LazyCollection::make(static function (): Generator {
