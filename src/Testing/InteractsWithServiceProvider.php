@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Manager;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use function now;
+use function preg_replace;
 
 /**
  * @internal
@@ -121,6 +123,36 @@ trait InteractsWithServiceProvider
         static::assertContains(
             $file, ServiceProvider::$publishGroups[$tag], "The '$file' is not publishable in the '$tag' tag."
         );
+    }
+
+    /**
+     * Assert that the migration files in the given path are published.
+     *
+     * @param  string  $dir
+     * @param  string  $tag
+     * @return void
+     */
+    protected function assertPublishesMigrations(string $dir, string $tag = 'migrations'): void
+    {
+        static::assertArrayHasKey($tag, ServiceProvider::$publishGroups, "The '$tag' is not a publishable tag.");
+
+        $files = $this->app->make('files')->files($dir);
+
+        static::assertNotEmpty($files, "The '$dir' has no migration files.");
+
+        $this->travelTo(now()->startOfSecond(), function () use ($tag, $files): void {
+            $prefix = now()->format('Y_m_d_His');
+
+            foreach ($files as $file) {
+                $filename = $prefix . '_' . preg_replace('/^[\d|_]+/', '', $file->getFilename());
+
+                static::assertContains(
+                    $this->app->databasePath("migrations/$filename"),
+                    ServiceProvider::$publishGroups[$tag],
+                    "The '$filename' is not publishable in the '$tag' tag."
+                );
+            }
+        });
     }
 
     /**

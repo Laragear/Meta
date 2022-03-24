@@ -13,8 +13,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\BootHelpers;
+use Laragear\Meta\PublishesMigrations;
 use Laragear\Meta\Testing\InteractsWithServiceProvider;
+use Mockery;
 use PHPUnit\Framework\AssertionFailedError;
+use Symfony\Component\Finder\SplFileInfo;
 use Tests\TestCase;
 
 class InteractsWithServiceProviderTest extends TestCase
@@ -145,6 +148,97 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectExceptionMessage("The 'baz' is not publishable in the 'quz' tag.");
 
         $this->assertPublishes('baz', 'quz');
+    }
+
+    public function test_assert_publishes_migration(): void
+    {
+        $foo = Mockery::mock(SplFileInfo::class);
+        $foo->expects('getRealPath')->andReturn('/package/vendor/migrations/create_foo_table.php');
+        $foo->expects('getFilename')->twice()->andReturn('create_foo_table.php');
+
+        $bar = Mockery::mock(SplFileInfo::class);
+        $bar->expects('getRealPath')->andReturn('/package/vendor/migrations/2020_01_01_173055_create_bar_table.php');
+        $bar->expects('getFilename')->twice()->andReturn('2020_01_01_173055_create_bar_table.php');
+
+        File::expects('files')->twice()->with('/package/vendor/migrations')->andReturn([$foo, $bar]);
+
+        $this->app->register(new class($this->app) extends ServiceProvider
+        {
+            use PublishesMigrations;
+
+            public function boot(): void
+            {
+                $this->publishesMigrations('/package/vendor/migrations');
+            }
+        });
+
+        $this->assertPublishesMigrations('/package/vendor/migrations');
+    }
+
+    public function test_assert_publishes_migration_with_different_tag(): void
+    {
+        $foo = Mockery::mock(SplFileInfo::class);
+        $foo->expects('getRealPath')->andReturn('/package/vendor/migrations/create_foo_table.php');
+        $foo->expects('getFilename')->twice()->andReturn('create_foo_table.php');
+
+        File::expects('files')->twice()->with('/package/vendor/migrations')->andReturn([$foo]);
+
+        $this->app->register(new class($this->app) extends ServiceProvider
+        {
+            use PublishesMigrations;
+
+            public function boot(): void
+            {
+                $this->publishesMigrations('/package/vendor/migrations', 'cougar');
+            }
+        });
+
+        $this->assertPublishesMigrations('/package/vendor/migrations', 'cougar');
+    }
+
+    public function test_assert_published_migration_fails(): void
+    {
+        $foo = Mockery::mock(SplFileInfo::class);
+        $foo->expects('getRealPath')->andReturn('/package/vendor/migrations/create_foo_table.php');
+        $foo->expects('getFilename')->andReturn('create_foo_table.php');
+
+        File::expects('files')->once()->with('/package/vendor/migrations')->andReturn([$foo]);
+        File::expects('files')->once()->with('/invalid')->andReturn([]);
+
+        $this->app->register(new class($this->app) extends ServiceProvider
+        {
+            use PublishesMigrations;
+
+            public function boot(): void
+            {
+                $this->publishesMigrations('/package/vendor/migrations');
+            }
+        });
+
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage("The '/invalid' has no migration files.");
+
+        $this->assertPublishesMigrations('/invalid');
+    }
+
+    public function test_assert_publishes_migration_fails_if_tag_not_same(): void
+    {
+        File::expects('files')->once()->with('/package/vendor/migrations')->andReturn([]);
+
+        $this->app->register(new class($this->app) extends ServiceProvider
+        {
+            use PublishesMigrations;
+
+            public function boot(): void
+            {
+                $this->publishesMigrations('/package/vendor/migrations');
+            }
+        });
+
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage("The 'cougar' is not a publishable tag");
+
+        $this->assertPublishesMigrations('/invalid', 'cougar');
     }
 
     public function test_assert_translations(): void
