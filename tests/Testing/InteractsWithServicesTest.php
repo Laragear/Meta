@@ -64,7 +64,7 @@ class InteractsWithServicesTest extends TestCase
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("The service 'files' was not mocked to be unmocked");
-        
+
         $collection = new Collection();
 
         $this->unmock('files', static function (Filesystem $files) use ($collection): void {
