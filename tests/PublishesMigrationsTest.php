@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\PublishesMigrations;
 use Laragear\Meta\Testing\InteractsWithServiceProvider;
-use Symfony\Component\Finder\SplFileInfo;
 use function now;
+use Symfony\Component\Finder\SplFileInfo;
 
 class PublishesMigrationsTest extends TestCase
 {

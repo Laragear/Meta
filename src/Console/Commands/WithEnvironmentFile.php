@@ -56,7 +56,7 @@ trait WithEnvironmentFile
 
         if ($keyIndex === false) {
             $keyIndex = $lines->keys()->last() + 1;
-        } elseif (!$force) {
+        } elseif (! $force) {
             return false;
         }
 

@@ -2,24 +2,24 @@
 
 namespace Laragear\Meta;
 
+use function app;
+use function array_filter;
+use function class_uses_recursive;
 use Closure;
+use const DIRECTORY_SEPARATOR;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
+use function in_array;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use SplFixedArray;
 use Symfony\Component\Finder\SplFileInfo;
-use function app;
-use function array_filter;
-use function class_uses_recursive;
-use function in_array;
 use function trim;
 use function ucfirst;
-use const DIRECTORY_SEPARATOR;
 
 /**
  * @internal
@@ -70,11 +70,11 @@ class Discover
     ) {
         $this->projectPath = $this->app->basePath();
 
-        if (!$this->baseNamespace) {
+        if (! $this->baseNamespace) {
             $this->baseNamespace = $this->app->getNamespace();
         }
 
-        if (!$this->basePath) {
+        if (! $this->basePath) {
             $this->basePath = Str::of($this->app->path())->after($this->projectPath)->trim(DIRECTORY_SEPARATOR);
         }
     }
@@ -116,7 +116,7 @@ class Discover
     {
         $this->filters['class'] = static function (ReflectionClass $class) use ($classes): bool {
             foreach ($classes as $comparable) {
-                if (!$class->isSubclassOf($comparable)) {
+                if (! $class->isSubclassOf($comparable)) {
                     return false;
                 }
             }
@@ -136,7 +136,7 @@ class Discover
     public function withMethod(string ...$methods): static
     {
         $this->filters['method'] = function (ReflectionClass $class) use ($methods): bool {
-            if ($this->invokable && !in_array('__invoke', $methods, true)) {
+            if ($this->invokable && ! in_array('__invoke', $methods, true)) {
                 $methods[] = '__invoke';
             }
 
@@ -261,14 +261,14 @@ class Discover
                 continue;
             }
 
-            if (!$reflection->isInstantiable()) {
+            if (! $reflection->isInstantiable()) {
                 continue;
             }
 
             $passes = true;
 
             foreach ($filters as $callback) {
-                if (!$callback($reflection)) {
+                if (! $callback($reflection)) {
                     $passes = false;
                     break;
                 }
