@@ -25,7 +25,7 @@ class InteractsWithServiceProviderTest extends TestCase
     {
         $this->app->instance('foo', 'bar');
 
-        $this->assertServices('foo');
+        $this->assertHasServices('foo');
     }
 
     public function test_assert_services_fails(): void
@@ -33,14 +33,14 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'foo' was not registered in the Service Container.");
 
-        $this->assertServices('foo');
+        $this->assertHasServices('foo');
     }
 
     public function test_assert_singletons(): void
     {
         $this->app->instance('foo', 'bar');
 
-        $this->assertSingletons('foo');
+        $this->assertHasSingletons('foo');
     }
 
     public function test_assert_singletons_fails_if_not_singleton(): void
@@ -50,7 +50,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'foo' is registered as a shared instance in the Service Container.");
 
-        $this->assertSingletons('foo');
+        $this->assertHasSingletons('foo');
     }
 
     public function test_assert_singletons_fails_if_not_registered(): void
@@ -58,7 +58,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'foo' was not registered in the Service Container.");
 
-        $this->assertSingletons('foo');
+        $this->assertHasSingletons('foo');
     }
 
     public function test_assert_merged_config(): void
@@ -156,7 +156,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertTranslations('foo', 'bar');
+        $this->assertHasTranslations('foo', 'bar');
     }
 
     public function test_assert_translations_fails_if_namespace_doesnt_exists(): void
@@ -172,7 +172,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'quz' translations were not registered.");
 
-        $this->assertTranslations('foo', 'quz');
+        $this->assertHasTranslations('foo', 'quz');
     }
 
     public function test_assert_translations_fails_if_file_doesnt_exists_in_namespace(): void
@@ -188,7 +188,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'bar' does not correspond to the path 'quz'.");
 
-        $this->assertTranslations('quz', 'bar');
+        $this->assertHasTranslations('quz', 'bar');
     }
 
     public function test_assert_views(): void
@@ -201,7 +201,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertViews('foo', 'bar');
+        $this->assertHasViews('foo', 'bar');
     }
 
     public function test_assert_views_fails_if_namespace_doesnt_exists(): void
@@ -217,7 +217,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'baz' views were not registered.");
 
-        $this->assertViews('foo', 'baz');
+        $this->assertHasViews('foo', 'baz');
     }
 
     public function test_assert_views_fails_if_file_doesnt_exist_in_namespace(): void
@@ -233,7 +233,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'bar' does not correspond to the path 'baz'.");
 
-        $this->assertViews('baz', 'bar');
+        $this->assertHasViews('baz', 'bar');
     }
 
     public function test_assert_blade_component(): void
@@ -249,8 +249,8 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertBladeComponent('foo-bar', 'quz');
-        $this->assertBladeComponent('foo-cougar', 'cougar');
+        $this->assertHasBladeComponent('foo-bar', 'quz');
+        $this->assertHasBladeComponent('foo-cougar', 'cougar');
     }
 
     public function test_assert_blade_component_fails_if_alias_doesnt_exists(): void
@@ -269,7 +269,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'foo-baz' is not registered as component.");
 
-        $this->assertBladeComponent('foo-baz', 'quz');
+        $this->assertHasBladeComponent('foo-baz', 'quz');
     }
 
     public function test_assert_blade_component_fails_if_component_doesnt_exists_in_alias(): void
@@ -288,7 +288,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'cougar' component is not registered as 'foo-bar'.");
 
-        $this->assertBladeComponent('foo-bar', 'cougar');
+        $this->assertHasBladeComponent('foo-bar', 'cougar');
     }
 
     public function test_assert_blade_directive(): void
@@ -301,7 +301,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertBladeDirectives('foo');
+        $this->assertHasBladeDirectives('foo');
     }
 
     public function test_assert_blade_directives_fail_if_doesnt_exist(): void
@@ -317,7 +317,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'bar' was not registered as a blade directive.");
 
-        $this->assertBladeDirectives('bar');
+        $this->assertHasBladeDirectives('bar');
     }
 
     public function test_assert_validation_rules(): void
@@ -330,7 +330,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertValidationRules('foo');
+        $this->assertHasValidationRules('foo');
     }
 
     public function test_assert_validation_rules_fail_if_doesnt_exist(): void
@@ -346,7 +346,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'bar' rule was not registered in the validator.");
 
-        $this->assertValidationRules('bar');
+        $this->assertHasValidationRules('bar');
     }
 
     public function test_assert_middleware_aliases(): void
@@ -359,7 +359,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertMiddlewareAlias('foo', 'bar');
+        $this->assertHasMiddlewareAlias('foo', 'bar');
     }
 
     public function test_assert_middleware_aliases_fails_if_doesnt_exist(): void
@@ -375,7 +375,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'baz' alias was not registered as middleware.");
 
-        $this->assertMiddlewareAlias('baz', 'bar');
+        $this->assertHasMiddlewareAlias('baz', 'bar');
     }
 
     public function test_assert_middleware_aliases_fails_if_middleware_alias_doesnt_exist(): void
@@ -391,7 +391,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'baz' was not aliased as 'foo' middleware.");
 
-        $this->assertMiddlewareAlias('foo', 'baz');
+        $this->assertHasMiddlewareAlias('foo', 'baz');
     }
 
     public function test_assert_global_middleware(): void
@@ -404,7 +404,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertGlobalMiddleware('foo');
+        $this->assertHasGlobalMiddleware('foo');
     }
 
     public function test_assert_global_middleware_fails_if_doesnt_exist(): void
@@ -420,7 +420,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'bar' middleware was not registered as global.");
 
-        $this->assertGlobalMiddleware('bar');
+        $this->assertHasGlobalMiddleware('bar');
     }
 
     public function test_assert_middleware_in_group(): void
@@ -433,7 +433,7 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertMiddlewareInGroup('web', 'foo');
+        $this->assertHasMiddlewareInGroup('web', 'foo');
     }
 
     public function test_assert_middleware_in_group_fails_if_group_doesnt_exist(): void
@@ -449,7 +449,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The middleware group 'invalid' is not defined by default.");
 
-        $this->assertMiddlewareInGroup('invalid', 'foo');
+        $this->assertHasMiddlewareInGroup('invalid', 'foo');
     }
 
     public function test_assert_middleware_in_group_fails_if_middleware_doesnt_exist_in_group(): void
@@ -465,7 +465,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The middleware 'bar' is not part of the 'web' group.");
 
-        $this->assertMiddlewareInGroup('web', 'bar');
+        $this->assertHasMiddlewareInGroup('web', 'bar');
     }
 
     public function test_assert_scheduled(): void
@@ -483,8 +483,8 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertScheduledTask(\Tests\Job::class);
-        $this->assertScheduledTask('test:job');
+        $this->assertHasScheduledTask(\Tests\Job::class);
+        $this->assertHasScheduledTask('test:job');
     }
 
     public function test_assert_scheduled_job_fails_if_not_found(): void
@@ -505,7 +505,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'Tests\Invalid' is has not been scheduled");
 
-        $this->assertScheduledTask(\Tests\Invalid::class);
+        $this->assertHasScheduledTask(\Tests\Invalid::class);
     }
 
     public function test_assert_scheduled_command_fails_if_not_found(): void
@@ -526,7 +526,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The 'test:invalid' is has not been scheduled");
 
-        $this->assertScheduledTask('test:invalid');
+        $this->assertHasScheduledTask('test:invalid');
     }
 
     public function test_assert_scheduled_task_at_date(): void
@@ -680,8 +680,8 @@ class InteractsWithServiceProviderTest extends TestCase
             }
         });
 
-        $this->assertMacro(Builder::class, 'foo');
-        $this->assertMacro(BaseBuilder::class, 'baz');
+        $this->assertHasMacro(Builder::class, 'foo');
+        $this->assertHasMacro(BaseBuilder::class, 'baz');
     }
 
     public function test_assert_macro_fails_if_macro_doesnt_exist(): void
@@ -697,6 +697,6 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("The macro 'bar' for \\Illuminate\\Database\\Eloquent\\Builder::class is missing.");
 
-        $this->assertMacro(Builder::class, 'bar');
+        $this->assertHasMacro(Builder::class, 'bar');
     }
 }
