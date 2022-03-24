@@ -41,6 +41,7 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->app->instance('foo', 'bar');
 
         $this->assertHasSingletons('foo');
+        $this->assertHasShared('foo');
     }
 
     public function test_assert_singletons_fails_if_not_singleton(): void

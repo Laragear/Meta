@@ -6,6 +6,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use Laragear\Meta\Testing\InteractsWithServices;
+use LogicException;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
@@ -57,5 +58,17 @@ class InteractsWithServicesTest extends TestCase
         static::assertNotEmpty($collection);
 
         static::assertInstanceOf(MockInterface::class, $this->app->make('files'));
+    }
+
+    public function test_unmock_fails_if_service_was_not_mocked(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage("The service 'files' was not mocked to be unmocked");
+        
+        $collection = new Collection();
+
+        $this->unmock('files', static function (Filesystem $files) use ($collection): void {
+            $collection->push(...$files->files(__DIR__));
+        });
     }
 }
