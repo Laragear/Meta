@@ -29,21 +29,21 @@ class MiddlewareDeclarationTest extends TestCase
     {
         $this->declaration->as('bar');
 
-        $this->assertMiddlewareAlias('bar', 'foo');
+        $this->assertHasMiddlewareAlias('bar', 'foo');
     }
 
     public function test_in_group(): void
     {
         $this->declaration->inGroup('web');
 
-        $this->assertMiddlewareInGroup('web', 'foo');
+        $this->assertHasMiddlewareInGroup('web', 'foo');
     }
 
     public function test_globally(): void
     {
         $this->declaration->globally();
 
-        $this->assertGlobalMiddleware('foo');
+        $this->assertHasGlobalMiddleware('foo');
     }
 
     public function test_first(): void
@@ -64,6 +64,6 @@ class MiddlewareDeclarationTest extends TestCase
     {
         $this->declaration->shared();
 
-        $this->assertSingletons('foo');
+        $this->assertHasSingletons('foo');
     }
 }
