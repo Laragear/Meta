@@ -6,10 +6,10 @@ use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laragear\Meta\Testing\Http\InteractsWithMiddleware;
-use RuntimeException;
-use Tests\TestCase;
 use function redirect;
 use function response;
+use RuntimeException;
+use Tests\TestCase;
 
 class InteractsWithMiddlewareTest extends TestCase
 {
@@ -92,6 +92,7 @@ class InteractsWithMiddlewareTest extends TestCase
             ->withCookies(['foo' => 'bar'])
             ->using(static function (Request $request) {
                 \dd($request->cookies);
+
                 return response('doo')->withCookie('baz', $request->cookie('foo'));
             })
             ->get()

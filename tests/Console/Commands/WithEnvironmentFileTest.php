@@ -2,14 +2,14 @@
 
 namespace Tests\Console\Commands;
 
+use function app;
+use function func_get_args;
 use Generator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\LazyCollection;
 use Laragear\Meta\Console\Commands\WithEnvironmentFile;
-use Tests\TestCase;
-use function app;
-use function func_get_args;
 use const PHP_EOL;
+use Tests\TestCase;
 
 class WithEnvironmentFileTest extends TestCase
 {
