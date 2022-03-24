@@ -31,84 +31,100 @@ Require this package into your project using Composer:
 composer require laragear/meta
 ```
 
-## Usage
-
 This package contains traits and classes to ease package development and package testing.
 
-All classes and traits have been marked with the [`@internal` PHPDoc tag](https://docs.phpdoc.org/guide/references/phpdoc/tags/internal.html). This will avoid some IDE to take into account these structural files into autocompletion / intellisense.
+> All classes and traits have been marked with the [`@internal` PHPDoc tag](https://docs.phpdoc.org/guide/references/phpdoc/tags/internal.html). This will avoid some IDE to take into account these structural files into autocompletion / intellisense.
 
-### Discoverer
+## Discoverer
 
-The `Discoverer` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others.
+The `Discoverer` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others. 
+
+You can use this class, let's make an example about a package that needs to list several classes inside `App\Scoreboards`, that include at least one method starting with `handle`, like `handleAwayTeam()`. 
 
 ```php
 use Laragear\Meta\Discover;
-use Vendor\Package\Facades\MyMutator;
+use Vendor\Package\Facades\Scoreboard;
 
-$files = Discover::in('Events')->withMethod('handle*')->all();
+$classes = Discover::in('Scoreboards')->withMethod('handle*')->all();
 
-MyMutator::add($files);
+Scoreboard::register($classes);
 ```
 
-It returns a `Collection` instance with instances of `ReflectionClass` to further filter the list.
+By default, it always starts from the Application root path and namespace, which are `app` and `App` respectively. If you need to, you can change both independently using `atNamespace()`. 
+
+```php
+use Laragear\Meta\Discover;
+
+$classes = Discover::in('Scoreboards')->atNamespace('Score')->withMethod('handle*')->all();
+```
+
+In any case, the discovered classes are returned as a `Collection` instance, with instances of `ReflectionClass` to further filter the list to your needs. For example, we will filter all those scoreboards that have the property `hidden`.
 
 ```php
 use Laragear\Meta\Discover;
 use ReflectionClass;
 
 Discover::in('Events')->all()->filter(function (ReflectionClass $class) {
-    // ...
+    return $class->hasProperty('hidden');
 });
 ```
 
-### Boot Helpers
+> The discovered classes must be always [PSR-4 autoloaded](https://getcomposer.org/doc/04-schema.md#psr-4).
 
-The `BootHelpers` trait adds some convenient Service Provider methods at boot time to add rules, middleware, listeners, and subscribers.
+## Boot Helpers
+
+The `BootHelpers` trait adds some convenient Service Provider methods at **boot** time to add rules, middleware, listeners, and subscribers.
 
 ```php
-// Extends a service manager after it resolves
-$this->withExtending('cache', 'nfs', fn () => new NfsCacheDriver());
-
-// Registers a validation rule.
-$this->withValidationRule('age', fn($attribute, $value) => $value > 18, 'You are too young!', true);
-
-// Registers a middleware using fluent methods.
-$this->withMiddleware(OnlyAdults::class)->as('adults');
-
-// Registers a listener for a given event.
-$this->withListener('birthday', GreetOnBirthday::class);
-
-// Registers a subscriber for many events.
-$this->withSubscriber(BirthdaySubscriber::class);
-
-// Registers one or many scheduled jobs using a callback.
-$this->withSchedule(function ($schedule) {
-    $schedule->command('package:something')->everyFifteenMinutes();
-}) 
+public function boot()
+{
+    // Extends a service manager with a custom driver
+    $this->withDriver('cache', 'nfs', fn () => new NfsCacheDriver());
+    
+    // Registers a validation rule.
+    $this->withValidationRule('age', fn($attribute, $value) => $value > 18, 'You are too young!', true);
+    
+    // Registers a middleware using fluent methods.
+    $this->withMiddleware(OnlyAdults::class)->as('adults');
+    
+    // Registers a listener for a given event.
+    $this->withListener('birthday', GreetOnBirthday::class);
+    
+    // Registers a subscriber for many events.
+    $this->withSubscriber(BirthdaySubscriber::class);
+    
+    // Registers one or many scheduled jobs using a callback.
+    $this->withSchedule(function ($schedule) {
+        $schedule->command('package:something')->everyFifteenMinutes();
+    }) 
+}
 ```
 
-#### Middleware declaration
+### Middleware declaration
 
-When using `withMiddleware()` you will receive a `MiddlewareDeclaration` object with convenient methods to register the middleware globally or inside a group, set it as first/last in the stack, and register an alias for it.
+When using `withMiddleware()` you will receive a `MiddlewareDeclaration` object with convenient methods to register the middleware globally or inside a group, set it as first/last in the global priority stack, and register an alias for it.
 
 ```php
-$declaration = $this->withMiddleware(OnlyAdults::class);
-
-// Make it a shared instance.
-$declaration->shared();
-
-// Set an alias
-$declaration->as('adults');
-
-// Puts it inside a middleware group.
-$declaration->inGroup('web');
-
-// Sets the middleware in the global stack.
-$declaration->globally();
-
-// Makes the middleware run first or last in the priority stack.
-$declaration->first();
-$declaration->last();
+public function boot()
+{
+    $declaration = $this->withMiddleware(OnlyAdults::class);
+    
+    // Make it a shared instance.
+    $declaration->shared();
+    
+    // Set an alias
+    $declaration->as('adults');
+    
+    // Puts it inside a middleware group.
+    $declaration->inGroup('web');
+    
+    // Sets the middleware in the global stack.
+    $declaration->globally();
+    
+    // Makes the middleware run first or last in the priority stack.
+    $declaration->first();
+    $declaration->last();
+}
 ```
 
 ## Testing
@@ -119,15 +135,15 @@ The `InteractsWithServiceProvider` allows to quickly test if the Service Provide
 
 ```php
 use Orchestra\Testbench\TestCase
-use Laragear\Meta\Tests\InteractsWithServiceProvider;
+use Laragear\Meta\Testing\InteractsWithServiceProvider;
 
 class ServiceProviderTest extends TestCase
 {
-    use InteractsWithServiceProvider
+    use InteractsWithServiceProvider;
     
     public function test_is_registered_as_singleton(): void
     {
-        $this->assertSingletons(\Vendor\Package\MyService::class);
+        $this->assertHasSingletons(\Vendor\Package\MyService::class);
     }
 }
 ```
@@ -147,16 +163,19 @@ The available assertions are in this table:
 The `InteractsWithServices` trait includes helpers to retrieve services from the Service Container and do quick things. 
 
 ```php
-// Get a service from the Service Container, optionally run over a callback.
-$this->service('cache', fn ($cache) => $cache->set('foo', 'bar', 30))
-
-// Run a service once and forgets it, while running a callback over it.
-$this->serviceOnce('blade.compiler', fn($compiler) => $compiler->check('cool'));
-
-// Executes a callback over a REAL service when already mocked.
-$this->unmock('files', function ($files): void {
-    $files->copyDirectory('foo', 'bar');
-})
+public function test_something_important(): void
+{
+    // Get a service from the Service Container, optionally run over a callback.
+    $this->service('cache', fn ($cache) => $cache->set('foo', 'bar', 30))
+    
+    // Run a service once and forgets it, while running a callback over it.
+    $this->serviceOnce('blade.compiler', fn($compiler) => $compiler->check('cool'));
+    
+    // Executes a callback over a REAL service when already mocked.
+    $this->unmock('files', function ($files): void {
+        $files->copyDirectory('foo', 'bar');
+    })
+}
 ```
 
 ### Validation
@@ -164,27 +183,19 @@ $this->unmock('files', function ($files): void {
 This meta package includes a `InteractsWithValidation` trait, that assert if a rule passes or fails using minimal data. This is useful when creating validation rules and testing them without too much boilerplate.
 
 ```php
-// Assert the validation rule passes.
-$this->assertValidationPasses(['test' => 'foo'],['test' => 'my_rule']);
-
-// Assert the validation rule fails.
-$this->assertValidationFails(['test' => 'bar'],['test' => 'my_rule']);
-```
-
-### Middleware
-
-The `InteractsWithMiddleware` trait allows to quickly test a middleware with a temporal random route using `testMiddleware()`. It returns an instance of `PendingRequest`, which you can build with additional data to test a middleware thoughtfully.
-
-```php
-$this->testMiddleware('my-middleware')
-    ->inWebGroup()
-    ->withCookie('foo', 'bar')
-    ->get();
+public function test_validation_rule(): void
+{
+    // Assert the validation rule passes.
+    $this->assertValidationPasses(['test' => 'foo'],['test' => 'my_rule']);
+    
+    // Assert the validation rule fails.
+    $this->assertValidationFails(['test' => 'bar'],['test' => 'my_rule']);
+}
 ```
 
 ## Builder extender
 
-The `ExtendsBuilder` trait allows a scope to extend the instance of the Eloquent Builder with new methods. Simply add public static methods in the scope that receive a `Builder` instance, and optional parameters if you deem so.
+The `ExtendsBuilder` trait allows a [Global Scope](https://laravel.com/docs/eloquent#global-scopes) to extend the instance of the Eloquent Builder with new methods. Simply add public static methods in the scope that receive a `Builder` instance, and optional parameters if you deem so.
 
 ```php
 use Illuminate\Database\Eloquent\Scope;
@@ -213,22 +224,24 @@ class Cars implements Scope
 }
 ```
 
+> If you need the model being queried, you can always use `getModel()` over the Eloquent Builder instance. 
+
 ## Command Helpers
 
 This meta package includes command helpers for modifying the environment file, other files, confirm on production, and operate with stub files.
 
-- `WithEnvironmentFile` trait allows checking and replace environment file keys.
-- `WithFileComparison` trait allows checking files existence and equality (hash).
-- `WithProductionConfirmation` trait allows to confirm an action on production environments.
-- `WithStubs` trait allows copying custom stubs to a destination, while replacing custom strings.
-
+| Trait                        | Description                                                         |
+|------------------------------|---------------------------------------------------------------------|
+| `WithEnvironmentFile`        | Retrieve and replace environment file keys.                         |
+| `WithProductionConfirmation` | Confirm an action on production environments.                       |
+| `WithStubs`                  | Copy custom stubs to a destination, while replacing custom strings. |
 
 ## Laravel Octane compatibility
 
 - There are no singletons using a stale application instance.
 - There are no singletons using a stale config instance.
 - There are no singletons using a stale request instance.
-- There are no static properties being overwritten constantly.
+- `ExtendsBuilder` only initializes its static property once per Scope.
 
 There should be no problems using this package with Laravel Octane.
 
