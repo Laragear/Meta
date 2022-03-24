@@ -150,13 +150,14 @@ class ServiceProviderTest extends TestCase
 
 The available assertions are in this table:
 
-| Methods                |                           |                               |
-|------------------------|---------------------------|-------------------------------|
-| `assertServices()`     | `assertViews()`           | `assertGlobalMiddleware()`    |
-| `assertSingletons()`   | `assertBladeComponent()`  | `assertMiddlewareInGroup()`   |
-| `assertConfigMerged()` | `assertBladeDirectives()` | `assertScheduledTask()`       |
-| `assertPublishes()`    | `assertValidationRules()` | `assertScheduledTaskRunsAt()` |
-| `assertTranslations()` | `assertMiddlewareAlias()` | `assertMacro()`               |
+| Methods                       |                            |                               |
+|-------------------------------|----------------------------|-------------------------------|
+| `assertServices()`            | `assertViews()`            | `assertMiddlewareInGroup()`   |
+| `assertSingletons()`          | `assertBladeComponent()`   | `assertScheduledTask()`       |
+| `assertConfigMerged()`        | `assertBladeDirectives()`  | `assertScheduledTaskRunsAt()` |
+| `assertPublishes()`           | `assertValidationRules()`  | `assertMacro()`               |
+| `assertPublishesMigrations()` | `assertMiddlewareAlias()`  |                               |
+| `assertTranslations()`        | `assertGlobalMiddleware()` |                               |
 
 ### Service Helpers
 
