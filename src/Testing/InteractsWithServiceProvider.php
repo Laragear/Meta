@@ -61,7 +61,7 @@ trait InteractsWithServiceProvider
      * @param  string  ...$services
      * @return void
      */
-    public function assertSingletons(string ...$services): void
+    protected function assertHasSingletons(string ...$services): void
     {
         $this->assertServices(...$services);
 
