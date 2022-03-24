@@ -26,6 +26,12 @@ class InteractsWithValidatorTest extends TestCase
         $this->assertValidationFails(['foo' => 'invalid'], ['foo' => 'test_rule']);
     }
 
+    public function test_validates_simple_rule(): void
+    {
+        $this->assertValidationPasses('bar', 'test_rule');
+        $this->assertValidationFails('invalid', 'test_rule');
+    }
+
     public function test_validation_passes_fails(): void
     {
         $this->expectException(AssertionFailedError::class);
