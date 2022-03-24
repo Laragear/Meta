@@ -10,45 +10,24 @@ use Laragear\Meta\BootHelpers;
 
 class BootHelperTest extends TestCase
 {
+    protected function getPackageProviders($app): array
+    {
+        return [TestServiceProvider::class];
+    }
+
     public function test_with_driver(): void
     {
-        $this->app->singleton('test-manager-foo', function ($app) {
-            return new class($app) extends Manager
-            {
-                public function getDefaultDriver(): string
-                {
-                    return 'test';
-                }
-            };
-        });
-
-        $this->app->register(TestServiceProvider::class);
-
         static::assertSame('bar', $this->app->make('test-manager-foo')->driver('foo'));
     }
 
     public function test_with_driver_array(): void
     {
-        $this->app->singleton('test-manager-bar', function ($app) {
-            return new class($app) extends Manager
-            {
-                public function getDefaultDriver(): string
-                {
-                    return 'test';
-                }
-            };
-        });
-
-        $this->app->register(TestServiceProvider::class);
-
         static::assertSame('bar', $this->app->make('test-manager-bar')->driver('foo'));
         static::assertSame('quz', $this->app->make('test-manager-bar')->driver('baz'));
     }
 
     public function test_with_validation_rule(): void
     {
-        $this->app->register(TestServiceProvider::class);
-
         static::assertArrayHasKey('foo', $this->app->make('validator')->make([], [])->extensions);
 
         /** @var \Illuminate\Contracts\Validation\Validator $validator */
@@ -82,8 +61,6 @@ class BootHelperTest extends TestCase
 
     public function test_with_validation_rule_implicit(): void
     {
-        $this->app->register(TestServiceProvider::class);
-
         static::assertArrayHasKey('bar', $this->app->make('validator')->make([], [])->extensions);
 
         /** @var \Illuminate\Contracts\Validation\Validator $validator */
@@ -97,17 +74,26 @@ class BootHelperTest extends TestCase
         static::assertSame('test-bar-message', $validator->getMessageBag()->first());
     }
 
+    public function test_with_validation_rule_with_message_callback(): void
+    {
+        /** @var \Illuminate\Contracts\Validation\Validator $validator */
+        $validator = $this->app->make('validator')->make([
+            'pass' => '',
+        ], [
+            'pass' => 'bar',
+        ]);
+
+        static::assertTrue($validator->fails());
+        static::assertSame('test-bar-message', $validator->getMessageBag()->first());
+    }
+
     public function test_with_middleware(): void
     {
-        $this->app->register(TestServiceProvider::class);
-
         static::assertEmpty($this->app->make('router')->getMiddleware());
     }
 
     public function test_with_listener(): void
     {
-        $this->app->register(TestServiceProvider::class);
-
         /** @var \Illuminate\Events\Dispatcher $events */
         $events = $this->app->make('events');
 
@@ -117,8 +103,6 @@ class BootHelperTest extends TestCase
 
     public function test_with_subscriber(): void
     {
-        $this->app->register(TestServiceProvider::class);
-
         /** @var \Illuminate\Events\Dispatcher $events */
         $events = $this->app->make('events');
 
@@ -128,8 +112,6 @@ class BootHelperTest extends TestCase
 
     public function test_with_schedule(): void
     {
-        $this->app->register(TestServiceProvider::class);
-
         /** @var \Illuminate\Console\Scheduling\Schedule $schedule */
         $schedule = $this->app->make(Schedule::class);
 
@@ -142,6 +124,29 @@ class TestServiceProvider extends ServiceProvider
 {
     use BootHelpers;
 
+    public function register(): void
+    {
+        $this->app->singleton('test-manager-foo', function ($app) {
+            return new class($app) extends Manager
+            {
+                public function getDefaultDriver(): string
+                {
+                    return 'test';
+                }
+            };
+        });
+
+        $this->app->singleton('test-manager-bar', function ($app) {
+            return new class($app) extends Manager
+            {
+                public function getDefaultDriver(): string
+                {
+                    return 'test';
+                }
+            };
+        });
+    }
+
     public function boot(): void
     {
         $this->withDriver('test-manager-foo', 'foo', fn () => 'bar');
@@ -152,6 +157,7 @@ class TestServiceProvider extends ServiceProvider
 
         $this->withValidationRule('foo', fn ($key, $value) => $value === 'test_foo', 'test-foo-message');
         $this->withValidationRule('bar', fn ($key, $value) => $value === 'test_bar', 'test-bar-message', true);
+        $this->withValidationRule('baz', fn ($key, $value) => $value === 'test_baz', fn() => 'test-baz-message', true);
 
         $this->withMiddleware(\Tests\Stubs\TestMiddleware::class);
 
