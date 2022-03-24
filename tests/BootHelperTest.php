@@ -157,7 +157,7 @@ class TestServiceProvider extends ServiceProvider
 
         $this->withValidationRule('foo', fn ($key, $value) => $value === 'test_foo', 'test-foo-message');
         $this->withValidationRule('bar', fn ($key, $value) => $value === 'test_bar', 'test-bar-message', true);
-        $this->withValidationRule('baz', fn ($key, $value) => $value === 'test_baz', fn() => 'test-baz-message', true);
+        $this->withValidationRule('baz', fn ($key, $value) => $value === 'test_baz', fn () => 'test-baz-message', true);
 
         $this->withMiddleware(\Tests\Stubs\TestMiddleware::class);
 

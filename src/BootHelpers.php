@@ -10,9 +10,9 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Manager;
-use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use function is_callable;
 use function is_string;
+use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 
 /**
  * @internal
