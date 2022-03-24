@@ -144,7 +144,7 @@ trait InteractsWithServiceProvider
             $prefix = now()->format('Y_m_d_His');
 
             foreach ($files as $file) {
-                $filename = $prefix . '_' . preg_replace('/^[\d|_]+/', '', $file->getFilename());
+                $filename = $prefix.'_'.preg_replace('/^[\d|_]+/', '', $file->getFilename());
 
                 static::assertContains(
                     $this->app->databasePath("migrations/$filename"),
