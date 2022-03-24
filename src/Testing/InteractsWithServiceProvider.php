@@ -45,7 +45,7 @@ trait InteractsWithServiceProvider
      * @param  string  ...$services
      * @return void
      */
-    public function assertServices(string ...$services): void
+    protected function assertHasServices(string ...$services): void
     {
         foreach ($services as $service) {
             static::assertTrue(
@@ -63,7 +63,7 @@ trait InteractsWithServiceProvider
      */
     protected function assertHasSingletons(string ...$services): void
     {
-        $this->assertServices(...$services);
+        $this->assertHasServices(...$services);
 
         foreach ($services as $service) {
             static::assertTrue(
@@ -71,6 +71,17 @@ trait InteractsWithServiceProvider
                 "The '$service' is registered as a shared instance in the Service Container."
             );
         }
+    }
+
+    /**
+     * Assert a service is registered as a shared instance.
+     *
+     * @param  string  ...$services
+     * @return void
+     */
+    protected function assertHasShared(string ...$services): void
+    {
+        $this->assertHasSingletons(...$services);
     }
 
     /**
@@ -82,7 +93,7 @@ trait InteractsWithServiceProvider
      */
     protected function assertConfigMerged(string $file, string $configKey = null): void
     {
-        $configKey ??= Str::of($file)->beforeLast('.php')->afterLast('/')->toString();
+        $configKey ??= Str::of($file)->beforeLast('.php')->afterLast('/')->afterLast('\\')->toString();
 
         static::assertTrue(
             $this->app->make('config')->has($configKey),
@@ -119,7 +130,7 @@ trait InteractsWithServiceProvider
      * @param  string  $namespace
      * @return void
      */
-    protected function assertTranslations(string $path, string $namespace): void
+    protected function assertHasTranslations(string $path, string $namespace): void
     {
         $namespaces = $this->app->make('translator')->getLoader()->namespaces();
 
@@ -134,7 +145,7 @@ trait InteractsWithServiceProvider
      * @param  string  $namespace
      * @return void
      */
-    protected function assertViews(string $path, string $namespace): void
+    protected function assertHasViews(string $path, string $namespace): void
     {
         $namespaces = $this->app->make('view')->getFinder()->getHints();
 
@@ -149,7 +160,7 @@ trait InteractsWithServiceProvider
      * @param  string  $component
      * @return void
      */
-    protected function assertBladeComponent(string $alias, string $component): void
+    protected function assertHasBladeComponent(string $alias, string $component): void
     {
         $aliases = $this->app->make('blade.compiler')->getClassComponentAliases();
 
@@ -163,7 +174,7 @@ trait InteractsWithServiceProvider
      * @param  string  ...$directives
      * @return void
      */
-    protected function assertBladeDirectives(string ...$directives): void
+    protected function assertHasBladeDirectives(string ...$directives): void
     {
         $list = $this->app->make('blade.compiler')->getCustomDirectives();
 
@@ -178,7 +189,7 @@ trait InteractsWithServiceProvider
      * @param  string  ...$rules
      * @return void
      */
-    protected function assertValidationRules(string ...$rules): void
+    protected function assertHasValidationRules(string ...$rules): void
     {
         $extensions = $this->app->make('validator')->make([], [])->extensions;
 
@@ -194,7 +205,7 @@ trait InteractsWithServiceProvider
      * @param  string  $middleware
      * @return void
      */
-    protected function assertMiddlewareAlias(string $alias, string $middleware): void
+    protected function assertHasMiddlewareAlias(string $alias, string $middleware): void
     {
         $registered = $this->app->make('router')->getMiddleware();
 
@@ -208,7 +219,7 @@ trait InteractsWithServiceProvider
      * @param  string  ...$middleware
      * @return void
      */
-    protected function assertGlobalMiddleware(string ...$middleware): void
+    protected function assertHasGlobalMiddleware(string ...$middleware): void
     {
         $kernel = $this->app->make(Kernel::class);
 
@@ -224,7 +235,7 @@ trait InteractsWithServiceProvider
      * @param  string  $middleware
      * @return void
      */
-    protected function assertMiddlewareInGroup(string $group, string $middleware): void
+    protected function assertHasMiddlewareInGroup(string $group, string $middleware): void
     {
         $list = $this->app->make(Kernel::class)->getMiddlewareGroups();
 
@@ -238,7 +249,7 @@ trait InteractsWithServiceProvider
      * @param  string  $task
      * @return void
      */
-    protected function assertScheduledTask(string $task): void
+    protected function assertHasScheduledTask(string $task): void
     {
         $contains = Collection::make($this->app->make(Schedule::class)->events())
             ->contains(static function (Event $event) use ($task): bool {
@@ -258,7 +269,7 @@ trait InteractsWithServiceProvider
      */
     protected function assertScheduledTaskRunsAt(string $task, DateTimeInterface $date): void
     {
-        $this->assertScheduledTask($task);
+        $this->assertHasScheduledTask($task);
 
         $contains = $this->travelTo($date, function () use ($task): bool {
             return $this->app->make(Schedule::class)->dueEvents($this->app)
@@ -278,7 +289,7 @@ trait InteractsWithServiceProvider
      * @param  string  ...$macros
      * @return void
      */
-    protected function assertMacro(string $macroable, string ...$macros): void
+    protected function assertHasMacro(string $macroable, string ...$macros): void
     {
         $call = $macroable === Builder::class ? 'hasGlobalMacro' : 'hasMacro';
 
