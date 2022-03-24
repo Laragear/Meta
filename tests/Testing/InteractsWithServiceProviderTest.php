@@ -223,7 +223,7 @@ class InteractsWithServiceProviderTest extends TestCase
 
     public function test_assert_publishes_migration_fails_if_tag_not_same(): void
     {
-        File::expects('files')->once()->with('/package/vendor/migrations')->andReturn([]);
+        File::partialMock()->expects('files')->once()->with('/package/vendor/migrations')->andReturn([]);
 
         $this->app->register(new class($this->app) extends ServiceProvider
         {
@@ -236,9 +236,9 @@ class InteractsWithServiceProviderTest extends TestCase
         });
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The 'cougar' is not a publishable tag");
+        $this->expectExceptionMessage("The 'invalid-tag' is not a publishable tag");
 
-        $this->assertPublishesMigrations('/invalid', 'cougar');
+        $this->assertPublishesMigrations('/package/vendor/migrations', 'invalid-tag');
     }
 
     public function test_assert_translations(): void
