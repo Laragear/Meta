@@ -18,7 +18,7 @@ trait InteractsWithValidator
      */
     protected function assertValidationPasses(array|string $data, array|string $rules): void
     {
-        if (!is_array($data) && !is_array($rules)) {
+        if (! is_array($data) && ! is_array($rules)) {
             [$data, $rules] = [[$rules => $data], [$rules => $rules]];
         }
 
@@ -36,7 +36,7 @@ trait InteractsWithValidator
      */
     protected function assertValidationFails(array|string $data, array|string $rules): void
     {
-        if (!is_array($data) && !is_array($rules)) {
+        if (! is_array($data) && ! is_array($rules)) {
             [$data, $rules] = [[$rules => $data], [$rules => $rules]];
         }
 
