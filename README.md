@@ -194,6 +194,35 @@ public function test_validation_rule(): void
 }
 ```
 
+### Middleware
+
+You can test a middleware easily using the `InteractsWithMiddleware` trait and its `middleware()` method. It creates an on-demand route for the given path before sending a test Request to it, so there is no need to register a route.
+
+```php
+use Illuminate\Http\Request;
+use Vendor\Package\Http\Middleware\MyMiddleware;
+use Laragear\Meta\Testing\Middleware\InteractsWithMiddleware;
+
+public function test_middleware(): void
+{
+    $response = $this->middleware(MyMiddleware::class)->using(function (Request $request) {
+        // ...
+    })->post('test', ['foo' => 'bar']);
+    
+    $response->assertOk();
+}
+```
+
+It proxies all `MakesHttpRequest` trait methods, like `get()` or `withUnencryptedCookie()`, so you can get creative with testing your middleware.
+
+```php
+$this->middleware(MyMiddleware::class, 'test_argument')
+    ->withUnencryptedCookie()
+    ->be($this->myTestUser)
+    ->post('test/route', ['foo' => 'bar'])
+    ->assertSee('John');
+```
+
 ## Builder extender
 
 The `ExtendsBuilder` trait allows a [Global Scope](https://laravel.com/docs/eloquent#global-scopes) to extend the instance of the Eloquent Builder with new methods. Simply add public static methods in the scope that receive a `Builder` instance, and optional parameters if you deem so.
