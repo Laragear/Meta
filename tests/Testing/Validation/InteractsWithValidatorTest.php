@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Testing;
+namespace Tests\Testing\Validation;
 
 use Illuminate\Support\Facades\Validator;
 use Laragear\Meta\Testing\Validation\InteractsWithValidator;

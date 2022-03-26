@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Http\Requests;
+namespace Tests\Testing\Http\Requests;
 
 use Illuminate\Auth\GenericUser;
 use Illuminate\Foundation\Http\FormRequest;
