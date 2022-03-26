@@ -74,9 +74,7 @@ trait BootHelpers
      */
     protected function withMiddleware(string $class): MiddlewareDeclaration
     {
-        return new MiddlewareDeclaration(
-            $this->app->make(Router::class), $this->app->make(Kernel::class), $class
-        );
+        return new MiddlewareDeclaration($this->app->make(Router::class), $this->app->make(Kernel::class), $class);
     }
 
     /**
