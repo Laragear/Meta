@@ -13,10 +13,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use ReflectionException;
-use ReflectionMethod;
 use function now;
 use function preg_replace;
+use ReflectionException;
+use ReflectionMethod;
 
 /**
  * @internal
@@ -327,7 +327,7 @@ trait InteractsWithServiceProvider
             }
 
             static::assertThat(
-                $method->isPublic() && !$method->isStatic(),
+                $method->isPublic() && ! $method->isStatic(),
                 static::isTrue(),
                 "The '$ability' ability declared in '$target' is private/protected or static."
             );

@@ -17,8 +17,8 @@ class InteractsWithAuthorizationTest extends TestCase
     {
         parent::setUp();
 
-        $this->app->make(Gate::class)->define('test_gate', static fn($user, string $bar): bool => $bar === 'bar');
-        $this->app->make(Gate::class)->define('test_guest_gate', static fn(?Authenticatable $user, string $bar): bool => !$user && $bar === 'bar');
+        $this->app->make(Gate::class)->define('test_gate', static fn ($user, string $bar): bool => $bar === 'bar');
+        $this->app->make(Gate::class)->define('test_guest_gate', static fn (?Authenticatable $user, string $bar): bool => ! $user && $bar === 'bar');
     }
 
     public function test_assert_can(): void

@@ -2,16 +2,17 @@
 
 namespace Laragear\Meta\Testing\Http\Requests;
 
+use function get_class;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Assert as PHPUnit;
-use function get_class;
 
 /**
  * @template TForm of FormRequest
+ *
  * @internal
  */
 class PendingTestFormRequest
