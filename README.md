@@ -234,6 +234,17 @@ public function test_form_request()
 }
 ```
 
+### Authorization
+
+To check if a policy or gate works appropriately, use the `InteractsWithAuthorization` trait to check whether a user _can_ or _cannot_ be authorized to a given action.
+
+```php
+public function test_authorization()
+{
+    $this->assertUserCan($this->user, 'doSomething');
+}
+```
+
 ## Builder extender
 
 The `ExtendsBuilder` trait allows a [Global Scope](https://laravel.com/docs/eloquent#global-scopes) to extend the instance of the Eloquent Builder with new methods. Simply add public static methods in the scope that receive a `Builder` instance, and optional parameters if you deem so.
