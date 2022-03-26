@@ -184,7 +184,7 @@ class TestServiceProvider extends ServiceProvider
 
         $this->withSubscriber(TestSubscriber::class);
 
-        $this->withGate('foo', fn() => 'bar');
+        $this->withGate('foo', fn () => 'bar');
         $this->withPolicy(User::class, TestPolicy::class);
 
         $this->withSchedule(function (Schedule $schedule): void {
