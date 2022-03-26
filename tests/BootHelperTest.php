@@ -3,10 +3,13 @@
 namespace Tests;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Manager;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\BootHelpers;
+use Tests\Testing\TestPolicy;
 
 class BootHelperTest extends TestCase
 {
@@ -110,6 +113,22 @@ class BootHelperTest extends TestCase
         static::assertTrue($events->hasListeners('test-event-bar'));
     }
 
+    public function test_with_gate(): void
+    {
+        /** @var \Illuminate\Auth\Access\Gate $gate */
+        $gate = $this->app->make(Gate::class);
+
+        static::assertArrayHasKey('foo', $gate->abilities());
+    }
+
+    public function test_with_policy(): void
+    {
+        /** @var \Illuminate\Auth\Access\Gate $gate */
+        $gate = $this->app->make(Gate::class);
+
+        static::assertArrayHasKey(User::class, $gate->policies());
+    }
+
     public function test_with_schedule(): void
     {
         /** @var \Illuminate\Console\Scheduling\Schedule $schedule */
@@ -164,6 +183,9 @@ class TestServiceProvider extends ServiceProvider
         $this->withListener('test-event', \Tests\Stubs\TestEventListener::class);
 
         $this->withSubscriber(TestSubscriber::class);
+
+        $this->withGate('foo', fn() => 'bar');
+        $this->withPolicy(User::class, TestPolicy::class);
 
         $this->withSchedule(function (Schedule $schedule): void {
             $schedule->command('inspire')->everyFifteenMinutes();

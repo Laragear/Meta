@@ -105,6 +105,34 @@ trait BootHelpers
     }
 
     /**
+     * Adds a gate into the authorization Gate.
+     *
+     * @param  string  $name
+     * @param  callable|string  $callback
+     * @return void
+     */
+    protected function withGate(string $name, callable|string $callback): void
+    {
+        $this->callAfterResolving(Gate::class, static function (Gate $gate) use ($name, $callback): void {
+            $gate->define($name, $callback);
+        });
+    }
+
+    /**
+     * Adds a Policy for the given model.
+     *
+     * @param  class-string|string  $model
+     * @param  string  $policy
+     * @return void
+     */
+    protected function withPolicy(string $model, string $policy): void
+    {
+        $this->callAfterResolving(Gate::class, static function (Gate $gate) use ($model, $policy): void {
+            $gate->policy($model, $policy);
+        });
+    }
+
+    /**
      * Schedule a Job or Command using a callback.
      *
      * @param  callable(\Illuminate\Console\Scheduling\Schedule)  $callback
