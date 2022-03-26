@@ -2,16 +2,16 @@
 
 namespace Laragear\Meta;
 
-use Closure;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
+use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use function is_callable;
 use function is_string;
-use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 
 /**
  * @internal
@@ -109,12 +109,12 @@ trait BootHelpers
     /**
      * Schedule a Job or Command using a callback.
      *
-     * @param  \Closure<\Illuminate\Console\Scheduling\Schedule>  $callback
+     * @param  callable(\Illuminate\Console\Scheduling\Schedule)  $callback
      * @return void
      *
      * @see https://laravelpackage.com/06-artisan-commands.html#scheduling-a-command-in-the-service-provider
      */
-    protected function withSchedule(Closure $callback): void
+    protected function withSchedule(callable $callback): void
     {
         if ($this->app->runningInConsole()) {
             $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($callback): void {
