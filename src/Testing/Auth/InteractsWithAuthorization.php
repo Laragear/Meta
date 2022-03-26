@@ -7,7 +7,6 @@ use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
  * @internal
- * @mixin \Orchestra\Testbench\TestCase
  */
 trait InteractsWithAuthorization
 {
