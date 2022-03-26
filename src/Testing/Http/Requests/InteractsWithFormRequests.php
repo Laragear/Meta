@@ -4,6 +4,9 @@ namespace Laragear\Meta\Testing\Http\Requests;
 
 use function array_merge;
 
+/**
+ * @internal
+ */
 trait InteractsWithFormRequests
 {
     /**
