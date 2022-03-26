@@ -278,6 +278,51 @@ trait InteractsWithServiceProvider
     }
 
     /**
+     * Assert the gate has a given ability.
+     *
+     * @param  string  ...$abilities
+     * @return void
+     */
+    protected function assertGateHasAbility(string ...$abilities): void
+    {
+        $gates = $this->app->make(Gate::class)->abilities();
+
+        foreach ($abilities as $ability) {
+            static::assertThat($gates, static::arrayHasKey($ability), "The '$ability' is not registered as a gate.");
+        }
+    }
+
+    /**
+     * Assert that a model has registered a Policy.
+     *
+     * @param  string  $model
+     * @param  string  ...$abilities
+     * @return void
+     */
+    protected function assertGateHasPolicy(string $model, string ...$abilities): void
+    {
+        $policy = $this->app->make(Gate::class)->getPolicyFor($model);
+
+        static::assertNotNull($policy, "The policy for '$model' does not exist.");
+
+        $target = get_class($policy);
+
+        foreach ($abilities as $ability) {
+            try {
+                $method = new ReflectionMethod($policy, $ability);
+            } catch (ReflectionException) {
+                static::fail("The '$ability' ability is not declared in the '$target' policy for '$model'.");
+            }
+
+            static::assertThat(
+                $method->isPublic() && !$method->isStatic(),
+                static::isTrue(),
+                "The '$ability' ability declared in '$target' is private/protected or static."
+            );
+        }
+    }
+
+    /**
      * Asserts a task is scheduled.
      *
      * @param  string  $task

@@ -636,6 +636,81 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->assertHasMiddlewareInGroup('web', 'bar');
     }
 
+    public function test_assert_gate_has_ability(): void
+    {
+        $this->app->register(new class($this->app) extends ServiceProvider {
+            use BootHelpers;
+
+            public function boot(): void
+            {
+                $this->withGate('foo', fn(?object $user, string $foo) => $foo === 'bar');
+            }
+        });
+
+        $this->assertGateHasAbility('foo');
+    }
+
+    public function test_assert_gate_has_ability_fails(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage("The 'foo' is not registered as a gate.");
+
+        $this->assertGateHasAbility('foo');
+    }
+
+    public function test_gate_has_policy(): void
+    {
+        $this->app->register(new class($this->app) extends ServiceProvider {
+            use BootHelpers;
+
+            public function boot(): void
+            {
+                $this->withPolicy(User::class, TestPolicy::class);
+            }
+        });
+
+        $this->assertGateHasPolicy(User::class);
+    }
+
+    public function test_gate_has_policy_fails(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage("The policy for 'Illuminate\Foundation\Auth\User' does not exist.");
+
+        $this->assertGateHasPolicy(User::class);
+    }
+
+    public function test_gate_has_policy_with_ability(): void
+    {
+        $this->app->register(new class($this->app) extends ServiceProvider {
+            use BootHelpers;
+
+            public function boot(): void
+            {
+                $this->withPolicy(User::class, TestPolicy::class);
+            }
+        });
+
+        $this->assertGateHasPolicy(User::class, 'allowed');
+    }
+
+    public function test_gate_has_policy_with_ability_fails(): void
+    {
+        $this->app->register(new class($this->app) extends ServiceProvider {
+            use BootHelpers;
+
+            public function boot(): void
+            {
+                $this->withPolicy(User::class, TestPolicy::class);
+            }
+        });
+
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage("The 'invalid' ability is not declared in the 'Tests\Testing\TestPolicy' policy for 'Illuminate\Foundation\Auth\User'.");
+
+        $this->assertGateHasPolicy(User::class, 'invalid');
+    }
+
     public function test_assert_scheduled(): void
     {
         $this->app->register(new class($this->app) extends ServiceProvider
