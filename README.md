@@ -201,7 +201,7 @@ You can test a middleware easily using the `InteractsWithMiddleware` trait and i
 ```php
 use Illuminate\Http\Request;
 use Vendor\Package\Http\Middleware\MyMiddleware;
-use Laragear\Meta\Testing\Middleware\InteractsWithMiddleware;
+use Laragear\Meta\Testing\Http\Middleware\InteractsWithMiddleware;
 
 public function test_middleware(): void
 {
@@ -221,6 +221,17 @@ $this->middleware(MyMiddleware::class, 'test_argument')
     ->be($this->myTestUser)
     ->post('test/route', ['foo' => 'bar'])
     ->assertSee('John');
+```
+
+### Form Request
+
+You can test a Form Request if it passes authorization an validation using different data using the `InteractsWithFormRequests` trait. The `formRequest()` requires the Form Request class, and an `array` with the data to include in the request, to test in isolation.
+
+```php
+public function test_form_request()
+{
+    $this->formRequest(MyFormRequest::class, ['foo' => 'bar'])->assertOk();
+}
 ```
 
 ## Builder extender
