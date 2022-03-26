@@ -3,14 +3,15 @@
 namespace Laragear\Meta\Testing;
 
 use DateTimeInterface;
+use Illuminate\Auth\AuthManager;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Manager;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use function now;
 use function preg_replace;
 
@@ -24,20 +25,21 @@ trait InteractsWithServiceProvider
      *
      * @param  string  $service
      * @param  string  $driver
-     * @param  string|null  $class
+     * @param  class-string|string|null  $class
      * @return void
      */
     protected function assertHasDriver(string $service, string $driver, string $class = null): void
     {
-        $instance = $this->app->make($service);
+        $manager = $this->app->make($service);
 
-        static::assertInstanceOf(Manager::class, $instance, "The '$service' is not a Manager instance.");
-        static::assertContains($driver, $instance->getDrivers(), "The '$service' doesn't have the driver '$driver'.");
+        try {
+            $instance = $manager instanceof AuthManager ? $manager->guard($driver) : $manager->driver($driver);
+        } catch (InvalidArgumentException) {
+            static::fail("The '$service' service doesn't have the driver '$driver'.");
+        }
 
         if ($class) {
-            static::assertInstanceOf(
-                $class, $instance->driver($driver), "The the driver '$driver' is not an instance of '$class'."
-            );
+            static::assertInstanceOf($class, $instance, "The the driver '$driver' is not an instance of '$class'.");
         }
     }
 
