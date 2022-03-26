@@ -943,3 +943,16 @@ class InteractsWithServiceProviderTest extends TestCase
         $this->assertHasMacro(Builder::class, 'bar');
     }
 }
+
+class TestPolicy
+{
+    public function allowed()
+    {
+        return true;
+    }
+
+    public function denied()
+    {
+        return false;
+    }
+}
