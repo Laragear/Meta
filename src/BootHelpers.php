@@ -9,10 +9,9 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
-use Illuminate\Support\Manager;
+use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use function is_callable;
 use function is_string;
-use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 
 /**
  * @internal
@@ -33,7 +32,7 @@ trait BootHelpers
             $driver = [$driver => $callback];
         }
 
-        $this->callAfterResolving($service, static function (Manager $service) use ($driver): void {
+        $this->callAfterResolving($service, static function (object $service) use ($driver): void {
             foreach ($driver as $name => $callback) {
                 $service->extend($name, $callback);
             }
