@@ -56,7 +56,7 @@ class InteractsWithFormRequestsTest extends TestCase
         $this->formRequest->getFormRequest()->request->set('deny', true);
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The Form Request 'Tests\Http\Requests\TestFormRequest' fails authorization.");
+        $this->expectExceptionMessage("The Form Request 'Tests\Testing\Http\Requests\TestFormRequest' fails authorization.");
 
         $this->formRequest->assertAllowed();
     }
@@ -71,7 +71,7 @@ class InteractsWithFormRequestsTest extends TestCase
     public function test_assert_denied_fails(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The Form Request 'Tests\Http\Requests\TestFormRequest' passes authorization.");
+        $this->expectExceptionMessage("The Form Request 'Tests\Testing\Http\Requests\TestFormRequest' passes authorization.");
 
         $this->formRequest->assertDenied();
     }
@@ -86,7 +86,7 @@ class InteractsWithFormRequestsTest extends TestCase
         $this->formRequest->getFormRequest()->request->set('foo', 'not_bar');
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The Form Request 'Tests\Http\Requests\TestFormRequest' fails validation.");
+        $this->expectExceptionMessage("The Form Request 'Tests\Testing\Http\Requests\TestFormRequest' fails validation.");
 
         $this->formRequest->assertValidationPasses();
     }
@@ -101,7 +101,7 @@ class InteractsWithFormRequestsTest extends TestCase
     public function test_assert_validation_fails_fails(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The Form Request 'Tests\Http\Requests\TestFormRequest' passes validation.");
+        $this->expectExceptionMessage("The Form Request 'Tests\Testing\Http\Requests\TestFormRequest' passes validation.");
 
         $this->formRequest->assertValidationFails();
     }
@@ -116,7 +116,7 @@ class InteractsWithFormRequestsTest extends TestCase
         $this->formRequest->getFormRequest()->request->set('deny', true);
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The Form Request 'Tests\Http\Requests\TestFormRequest' fails authorization.");
+        $this->expectExceptionMessage("The Form Request 'Tests\Testing\Http\Requests\TestFormRequest' fails authorization.");
 
         $this->formRequest->assertOk();
     }
@@ -126,7 +126,7 @@ class InteractsWithFormRequestsTest extends TestCase
         $this->formRequest->getFormRequest()->request->set('foo', 'not_bar');
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("The Form Request 'Tests\Http\Requests\TestFormRequest' fails validation.");
+        $this->expectExceptionMessage("The Form Request 'Tests\Testing\Http\Requests\TestFormRequest' fails validation.");
 
         $this->formRequest->assertOk();
     }

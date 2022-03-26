@@ -6,12 +6,15 @@ use DateTimeInterface;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use ReflectionException;
+use ReflectionMethod;
 use function now;
 use function preg_replace;
 
@@ -38,6 +41,8 @@ trait InteractsWithServiceProvider
             static::fail("The '$service' service doesn't have the driver '$driver'.");
         }
 
+        static::assertNotNull($instance, "The '$driver' for '$service' returns null.");
+
         if ($class) {
             static::assertInstanceOf($class, $instance, "The the driver '$driver' is not an instance of '$class'.");
         }
@@ -52,8 +57,9 @@ trait InteractsWithServiceProvider
     protected function assertHasServices(string ...$services): void
     {
         foreach ($services as $service) {
-            static::assertTrue(
+            static::assertThat(
                 $this->app->bound($service),
+                static::isTrue(),
                 "The '$service' was not registered in the Service Container."
             );
         }
@@ -70,8 +76,9 @@ trait InteractsWithServiceProvider
         $this->assertHasServices(...$services);
 
         foreach ($services as $service) {
-            static::assertTrue(
+            static::assertThat(
                 $this->app->isShared($service),
+                static::isTrue(),
                 "The '$service' is registered as a shared instance in the Service Container."
             );
         }
@@ -99,8 +106,9 @@ trait InteractsWithServiceProvider
     {
         $configKey ??= Str::of($file)->beforeLast('.php')->afterLast('/')->afterLast('\\')->toString();
 
-        static::assertTrue(
+        static::assertThat(
             $this->app->make('config')->has($configKey),
+            static::isTrue(),
             "The configuration file was not merged as '$configKey'."
         );
 
@@ -258,7 +266,11 @@ trait InteractsWithServiceProvider
         $kernel = $this->app->make(Kernel::class);
 
         foreach ($middleware as $class) {
-            static::assertTrue($kernel->hasMiddleware($class), "The '$class' middleware was not registered as global.");
+            static::assertThat(
+                $kernel->hasMiddleware($class),
+                static::isTrue(),
+                "The '$class' middleware was not registered as global."
+            );
         }
     }
 
@@ -336,7 +348,7 @@ trait InteractsWithServiceProvider
                     || $event->description === $task;
             });
 
-        static::assertTrue($contains, "The '$task' is has not been scheduled.");
+        static::assertThat($contains, static::isTrue(), "The '$task' is has not been scheduled.");
     }
 
     /**
@@ -358,7 +370,7 @@ trait InteractsWithServiceProvider
                 });
         });
 
-        static::assertTrue($contains, "The '$task' is not scheduled to run at '$date'.");
+        static::assertThat($contains, static::isTrue(), "The '$task' is not scheduled to run at '$date'.");
     }
 
     /**
@@ -373,7 +385,9 @@ trait InteractsWithServiceProvider
         $call = $macroable === Builder::class ? 'hasGlobalMacro' : 'hasMacro';
 
         foreach ($macros as $macro) {
-            static::assertTrue($macroable::{$call}($macro), "The macro '$macro' for \\$macroable::class is missing.");
+            static::assertThat(
+                $macroable::{$call}($macro), static::isTrue(), "The macro '$macro' for '$macroable' is missing."
+            );
         }
     }
 }
