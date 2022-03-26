@@ -1,6 +1,6 @@
 <?php
 
-namespace Laragear\Meta\Testing\Middleware;
+namespace Laragear\Meta\Testing\Http\Middleware;
 
 use Closure;
 use Illuminate\Routing\Router;

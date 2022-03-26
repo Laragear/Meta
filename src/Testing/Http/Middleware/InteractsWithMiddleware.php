@@ -1,6 +1,6 @@
 <?php
 
-namespace Laragear\Meta\Testing\Middleware;
+namespace Laragear\Meta\Testing\Http\Middleware;
 
 use Illuminate\Http\Response;
 use function implode;
@@ -15,7 +15,7 @@ trait InteractsWithMiddleware
      *
      * @param  string  $middleware
      * @param  string  ...$parameters
-     * @return \Laragear\Meta\Testing\Middleware\PendingTestMiddleware
+     * @return \Laragear\Meta\Testing\Http\Middleware\PendingTestMiddleware
      */
     protected function middleware(string $middleware, string ...$parameters): PendingTestMiddleware
     {

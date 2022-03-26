@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Testing\Middleware;
+namespace Tests\Testing\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Laragear\Meta\Testing\Middleware\InteractsWithMiddleware;
+use Laragear\Meta\Testing\Http\Middleware\InteractsWithMiddleware;
 use Orchestra\Testbench\TestCase;
 
 class InteractsWithMiddlewareTest extends TestCase
@@ -66,7 +66,7 @@ class InteractsWithMiddlewareTest extends TestCase
     public function test_uses_controller(): void
     {
         $this->middleware(TestMiddleware::class)
-            ->using(fn () => 'foo')
+            ->using(fn() => 'foo')
             ->get('test')
             ->assertSee('foo');
     }
