@@ -12,6 +12,7 @@ use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
  * @template TForm of FormRequest
+ * @internal
  */
 class PendingTestFormRequest
 {
