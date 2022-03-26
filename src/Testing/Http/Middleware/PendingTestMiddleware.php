@@ -2,15 +2,15 @@
 
 namespace Laragear\Meta\Testing\Http\Middleware;
 
+use function array_merge;
+use function array_push;
+use function array_unique;
 use Closure;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
-use Orchestra\Testbench\TestCase;
-use function array_merge;
-use function array_push;
-use function array_unique;
 use function in_array;
+use Orchestra\Testbench\TestCase;
 
 /**
  * @internal
@@ -50,7 +50,7 @@ class PendingTestMiddleware
     protected array $additionalMiddleware = [];
 
     /**
-     * Create a new Pending Test Middleware
+     * Create a new Pending Test Middleware.
      *
      * @param  \Orchestra\Testbench\TestCase  $testCase
      * @param  \Illuminate\Routing\Router  $router

@@ -155,7 +155,7 @@ class TestFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'foo' => 'required|in:bar'
+            'foo' => 'required|in:bar',
         ];
     }
 

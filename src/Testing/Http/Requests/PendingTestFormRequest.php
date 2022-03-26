@@ -2,13 +2,13 @@
 
 namespace Laragear\Meta\Testing\Http\Requests;
 
+use function get_class;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Assert as PHPUnit;
-use function get_class;
 
 /**
  * @template TForm of FormRequest
@@ -45,6 +45,7 @@ class PendingTestFormRequest
     {
         PHPUnit::assertThat(null, PHPUnit::callback(function (): bool {
             $this->formRequest->validateResolved();
+
             return true;
         }));
     }
@@ -83,7 +84,7 @@ class PendingTestFormRequest
     public function assertAllowed(): static
     {
         try {
-           $this->resolveValidation();
+            $this->resolveValidation();
         } catch (AuthorizationException) {
             $form = get_class($this->formRequest);
 
