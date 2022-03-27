@@ -153,11 +153,11 @@ The available assertions are in this table:
 | Methods                       |                            |                               |
 |-------------------------------|----------------------------|-------------------------------|
 | `assertServices()`            | `assertViews()`            | `assertMiddlewareInGroup()`   |
-| `assertSingletons()`          | `assertBladeComponent()`   | `assertScheduledTask()`       |
-| `assertConfigMerged()`        | `assertBladeDirectives()`  | `assertScheduledTaskRunsAt()` |
-| `assertPublishes()`           | `assertValidationRules()`  | `assertMacro()`               |
-| `assertPublishesMigrations()` | `assertMiddlewareAlias()`  |                               |
-| `assertTranslations()`        | `assertGlobalMiddleware()` |                               |
+| `assertSingletons()`          | `assertBladeComponent()`   | `assertGateHasPolicy()`       |
+| `assertConfigMerged()`        | `assertBladeDirectives()`  | `assertGateHasPolicy()`       |
+| `assertPublishes()`           | `assertValidationRules()`  | `assertScheduledTask()`       |
+| `assertPublishesMigrations()` | `assertMiddlewareAlias()`  | `assertScheduledTaskRunsAt()` |
+| `assertTranslations()`        | `assertGlobalMiddleware()` | `assertMacro()`               |
 
 ### Service Helpers
 
@@ -167,15 +167,15 @@ The `InteractsWithServices` trait includes helpers to retrieve services from the
 public function test_something_important(): void
 {
     // Get a service from the Service Container, optionally run over a callback.
-    $this->service('cache', fn ($cache) => $cache->set('foo', 'bar', 30))
+    $cache = $this->service('cache', fn ($cache) => $cache->set('foo', 'bar', 30));
     
     // Run a service once and forgets it, while running a callback over it.
-    $this->serviceOnce('blade.compiler', fn($compiler) => $compiler->check('cool'));
+    $compiler = $this->serviceOnce('blade.compiler', fn($compiler) => $compiler->check('cool'));
     
     // Executes a callback over a REAL service when already mocked.
     $this->unmock('files', function ($files): void {
         $files->copyDirectory('foo', 'bar');
-    })
+    });
 }
 ```
 
@@ -242,6 +242,19 @@ To check if a policy or gate works appropriately, use the `InteractsWithAuthoriz
 public function test_authorization()
 {
     $this->assertUserCan($this->user, 'doSomething');
+}
+```
+
+### Casts
+
+The `InteractsWithCast` trait allows to quickly test if a cast sets values from an attribute appropriately, and can return a given value from an attribute value. It also supports checking on multiple attributes at a time.
+
+```php
+public function test_cast()
+{
+    $this->cast(MyTestCast::class)
+        ->assertCastFrom(null, new Cast)
+        ->assertCastTo('{"foo":"bar"}', new Cast(['foo' => 'bar']));
 }
 ```
 
