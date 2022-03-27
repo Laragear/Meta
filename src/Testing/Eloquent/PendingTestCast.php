@@ -4,8 +4,8 @@ namespace Laragear\Meta\Testing\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\ForwardsCalls;
-use PHPUnit\Framework\Assert as PHPUnit;
 use function is_array;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 class PendingTestCast
 {
@@ -46,7 +46,7 @@ class PendingTestCast
     {
         $clone = (clone $this->model)->setAttribute($this->attribute, $incoming);
 
-        if (!is_array($expected)) {
+        if (! is_array($expected)) {
             $expected = [$this->attribute => $expected];
         }
 
@@ -72,7 +72,7 @@ class PendingTestCast
     {
         $clone = (clone $this->model)->setAttribute($this->attribute, $incoming);
 
-        if (!is_array($expected)) {
+        if (! is_array($expected)) {
             $expected = [$this->attribute => $expected];
         }
 

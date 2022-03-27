@@ -15,7 +15,8 @@ trait InteractsWithCast
      */
     public function cast(string $cast, string $attribute = 'test'): PendingTestCast
     {
-        $model = new class() extends Model {
+        $model = new class() extends Model
+        {
             protected $table = 'cast_tests';
             public $timestamps = false;
         };

@@ -70,7 +70,7 @@ class InteractsWithCastTest extends TestCase
                 'test' => 'BAR',
                 'test_foo' => false,
                 'test_bar' => true,
-                'test_baz' => 'baz'
+                'test_baz' => 'baz',
             ]);
     }
 }
