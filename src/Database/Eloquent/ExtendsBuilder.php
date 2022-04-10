@@ -43,7 +43,7 @@ trait ExtendsBuilder
     protected function filterMethods(): Collection
     {
         return Collection::make((new ReflectionClass($this))->getMethods(Method::IS_PUBLIC | Method::IS_STATIC))
-            ->filter(static function (Method $method): string {
+            ->filter(static function (Method $method): bool {
                 return $method->isPublic() && $method->isStatic();
             })
             ->map(static function (Method $method): string {
