@@ -90,6 +90,16 @@ class BootHelperTest extends TestCase
         static::assertSame('test-bar-message', $validator->getMessageBag()->first());
     }
 
+    public function test_with_validation_class(): void
+    {
+        static::markTestSkipped('TODO: Test class methods registered');
+    }
+
+    public function test_with_validation_class_with_message(): void
+    {
+        static::markTestSkipped('TODO: Test class methods registered with message in translator.');
+    }
+
     public function test_with_middleware(): void
     {
         static::assertEmpty($this->app->make('router')->getMiddleware());
@@ -178,6 +188,9 @@ class TestServiceProvider extends ServiceProvider
         $this->withValidationRule('bar', fn ($key, $value) => $value === 'test_bar', 'test-bar-message', true);
         $this->withValidationRule('baz', fn ($key, $value) => $value === 'test_baz', fn () => 'test-baz-message', true);
 
+        $this->withValidationClass(TestValidation::class);
+        $this->withValidationClass(TestValidationWithMessage::class, 'test_prefix');
+
         $this->withMiddleware(\Tests\Stubs\TestMiddleware::class);
 
         $this->withListener('test-event', \Tests\Stubs\TestEventListener::class);
@@ -199,5 +212,36 @@ class TestSubscriber
     {
         $events->listen('test-event-foo', \Tests\Stubs\TestEventFooListener::class);
         $events->listen('test-event-bar', \Tests\Stubs\TestEventBarListener::class);
+    }
+}
+
+class TestValidation
+{
+    public static function fooBar()
+    {
+
+    }
+
+    public static function implicitBaz()
+    {
+
+    }
+
+    public function qux()
+    {
+
+    }
+
+    protected static function quzCugar()
+    {
+
+    }
+}
+
+class TestValidationWithMessage
+{
+    public static function barQuz()
+    {
+
     }
 }

@@ -83,6 +83,9 @@ public function boot()
     
     // Registers a validation rule.
     $this->withValidationRule('age', fn($attribute, $value) => $value > 18, 'You are too young!', true);
+
+    // Registers public static methods as validation rules from a class, with optional messages.
+    $this->withValidationClass(ValidationRules::class, 'my-package');
     
     // Registers a middleware using fluent methods.
     $this->withMiddleware(OnlyAdults::class)->as('adults');

@@ -9,9 +9,12 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Arr;
 use function is_callable;
 use function is_string;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * @internal
@@ -62,6 +65,47 @@ trait BootHelpers
                 $implicit
                     ? $validator->extendImplicit($rule, $callback, $message)
                     : $validator->extend($rule, $callback, $message);
+            }
+        );
+    }
+
+    /**
+     * Mixes in a class public static methods as validation rules.
+     *
+     * All class method names are transformed to `snake_case`. If any method name starts with
+     * `Implicit` it will be set as an implicit rule and the "implicit" part will be removed
+     * from the final rule name. The final name is also used for the translation key string.
+     * 
+     * @param  string  $class
+     * @param  string|null  $prefix  If set, it will be used to translation keys as `{$prefix}::validation.{$rule}`
+     * @return void
+     */
+    protected function withValidationClass(string $class, string $prefix = null): void
+    {
+        $this->callAfterResolving(
+            'validator',
+            static function (Factory $validator, Application $app) use ($class, $prefix): void {
+                $translator = $app->make('translator');
+
+                foreach (new ReflectionClass($class))->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+                    if (! $method->isStatic()) {
+                        continue;
+                    }
+
+                    $name = Str::of($method->name)->snake();
+
+                    if ($implicit = $name->startsWith('implicit_')) {
+                        $name = $name->substr(9);
+                    }
+
+                    if ($prefix) {
+                        $prefix = $translator->get("$prefix::validation.$name");
+                    }
+
+                    $implicit
+                        ? $validator->extendImplicit($name, [$class, $method->name], $prefix)
+                        : $validator->extend($name, [$class, $method->name], $prefix);
+                }
             }
         );
     }
