@@ -219,22 +219,18 @@ class TestValidation
 {
     public static function fooBar()
     {
-
     }
 
     public static function implicitBaz()
     {
-
     }
 
     public function qux()
     {
-
     }
 
     protected static function quzCugar()
     {
-
     }
 }
 
@@ -242,6 +238,5 @@ class TestValidationWithMessage
 {
     public static function barQuz()
     {
-
     }
 }
