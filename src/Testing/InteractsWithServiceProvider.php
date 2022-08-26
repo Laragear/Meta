@@ -285,8 +285,15 @@ trait InteractsWithServiceProvider
     {
         $list = $this->app->make(Kernel::class)->getMiddlewareGroups();
 
-        static::assertArrayHasKey($group, $list, "The middleware group '$group' is not defined by default.");
-        static::assertContains($middleware, $list[$group], "The middleware '$middleware' is not part of the '$group' group.");
+        static::assertThat(
+            $list, static::arrayHasKey($group), "The middleware group '$group' is not defined by default."
+        );
+
+        static::assertThat(
+            $list[$group],
+            static::containsEqual($middleware),
+            "The middleware '$middleware' is not part of the '$group' group."
+        );
     }
 
     /**
