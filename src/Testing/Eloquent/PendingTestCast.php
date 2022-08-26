@@ -4,8 +4,8 @@ namespace Laragear\Meta\Testing\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\ForwardsCalls;
-use function is_array;
 use PHPUnit\Framework\Assert as PHPUnit;
+use function is_array;
 
 class PendingTestCast
 {
@@ -40,7 +40,7 @@ class PendingTestCast
      *
      * @param  mixed  $incoming
      * @param  array  $expected
-     * @return \Laragear\Meta\Testing\Eloquent\PendingTestCast
+     * @return $this
      */
     public function assertCastTo(mixed $incoming, mixed $expected): static
     {

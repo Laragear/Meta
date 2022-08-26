@@ -84,7 +84,7 @@ class MiddlewareDeclaration
     /**
      * Makes the middleware a shared instance.
      *
-     * @param  \Closure<\Illuminate\Contracts\Foundation\Application>|null  $callback
+     * @param  (\Closure(\Illuminate\Contracts\Foundation\Application):mixed)|null  $callback
      * @return $this
      */
     public function shared(Closure $callback = null): static

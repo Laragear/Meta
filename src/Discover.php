@@ -2,24 +2,24 @@
 
 namespace Laragear\Meta;
 
-use function app;
-use function array_filter;
-use function class_uses_recursive;
 use Closure;
-use const DIRECTORY_SEPARATOR;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use function in_array;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use SplFixedArray;
 use Symfony\Component\Finder\SplFileInfo;
+use function app;
+use function array_filter;
+use function class_uses_recursive;
+use function in_array;
 use function trim;
 use function ucfirst;
+use const DIRECTORY_SEPARATOR;
 
 /**
  * @internal
@@ -62,7 +62,7 @@ class Discover
      * @param  string  $basePath
      * @param  string  $baseNamespace
      */
-    public function __construct(
+    final public function __construct(
         protected Application $app,
         protected string $path = '',
         protected string $basePath = '',
@@ -75,6 +75,7 @@ class Discover
         }
 
         if (! $this->basePath) {
+            // @phpstan-ignore-next-line
             $this->basePath = Str::of($this->app->path())->after($this->projectPath)->trim(DIRECTORY_SEPARATOR);
         }
     }
@@ -156,7 +157,7 @@ class Discover
      * Filter classes implementing the given method using a callback for the ReflectionMethod object.
      *
      * @param  string  $method
-     * @param  \Closure<\ReflectionMethod>:bool  $callback
+     * @param  \Closure(\ReflectionMethod):bool  $callback
      * @return $this
      */
     public function withMethodReflection(string $method, Closure $callback): static
@@ -267,6 +268,7 @@ class Discover
 
             $passes = true;
 
+            // @phpstan-ignore-next-line
             foreach ($filters as $callback) {
                 if (! $callback($reflection)) {
                     $passes = false;
@@ -274,6 +276,7 @@ class Discover
                 }
             }
 
+            // @phpstan-ignore-next-line
             if ($passes) {
                 $classes->put($reflection->name, $reflection);
             }
