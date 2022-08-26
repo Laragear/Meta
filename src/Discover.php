@@ -2,24 +2,24 @@
 
 namespace Laragear\Meta;
 
+use function app;
+use function array_filter;
+use function class_uses_recursive;
 use Closure;
+use const DIRECTORY_SEPARATOR;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
+use function in_array;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use SplFixedArray;
 use Symfony\Component\Finder\SplFileInfo;
-use function app;
-use function array_filter;
-use function class_uses_recursive;
-use function in_array;
 use function trim;
 use function ucfirst;
-use const DIRECTORY_SEPARATOR;
 
 /**
  * @internal
