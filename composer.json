@@ -21,10 +21,10 @@
         "issues": "https://github.com/Laragear/Meta/issues"
     },
     "require": {
-        "php": ">=8.0.2",
-        "laravel/breeze": "1.*"
+        "php": ">=8.0.2"
     },
     "require-dev": {
+        "laravel/breeze": "1.*",
         "mockery/mockery": "^1.5",
         "orchestra/testbench": "7.*",
         "phpunit/phpunit": "^9.5.13"
