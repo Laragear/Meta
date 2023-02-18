@@ -4,10 +4,10 @@ namespace Laragear\Meta\Database\Eloquent;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use function lcfirst;
 use ReflectionClass;
 use ReflectionMethod as Method;
 use SplFixedArray;
-use function lcfirst;
 use function str_starts_with;
 use function strlen;
 use function substr;
