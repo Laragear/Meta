@@ -37,7 +37,7 @@ trait WithEnvironmentFile
      * @param  string  $value
      * @param  bool  $force  If false, no new value will replace the original.
      * @param  string  $file
-     * @return bool  Return false if the environment file was not written.
+     * @return bool Return false if the environment file was not written.
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
