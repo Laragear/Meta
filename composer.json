@@ -21,13 +21,13 @@
         "issues": "https://github.com/Laragear/Meta/issues"
     },
     "require": {
-        "php": ">=8.0.2"
+        "php": "^8.1"
     },
     "require-dev": {
+        "laragear/meta-testing": "1.*",
         "laravel/breeze": "1.*",
         "mockery/mockery": "^1.5",
-        "orchestra/testbench": "7.*",
-        "phpunit/phpunit": "^9.5.13"
+        "orchestra/testbench": "7.*|8.*"
     },
     "autoload": {
         "psr-4": {
@@ -50,16 +50,8 @@
     },
     "funding": [
         {
-            "type": "Patreon",
-            "url": "https://patreon.com/PackagesForLaravel"
-        },
-        {
-            "type": "Ko-Fi",
-            "url": "https://ko-fi.com/DarkGhostHunter"
-        },
-        {
-            "type": "Buy me a cofee",
-            "url": "https://www.buymeacoffee.com/darkghosthunter"
+            "type": "Github Sponsorship",
+            "url": "https://github.com/sponsors/DarkGhostHunter"
         },
         {
             "type": "Paypal",

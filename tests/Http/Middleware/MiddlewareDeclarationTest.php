@@ -6,7 +6,7 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
-use Laragear\Meta\Testing\InteractsWithServiceProvider;
+use Laragear\MetaTesting\InteractsWithServiceProvider;
 use Tests\TestCase;
 
 class MiddlewareDeclarationTest extends TestCase

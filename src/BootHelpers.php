@@ -9,17 +9,14 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
+use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use function is_callable;
 use function is_string;
-use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 
-/**
- * @internal
- */
 trait BootHelpers
 {
     /**
-     * Extends a manager service.
+     * Extends a manager-like service.
      *
      * @param  string  $service
      * @param  string|array  $driver
@@ -113,9 +110,7 @@ trait BootHelpers
      */
     protected function withGate(string $name, callable|string $callback): void
     {
-        $this->callAfterResolving(Gate::class, static function (Gate $gate) use ($name, $callback): void {
-            $gate->define($name, $callback);
-        });
+        $this->callAfterResolving(Gate::class, static fn (Gate $gate): Gate => $gate->define($name, $callback));
     }
 
     /**
@@ -127,15 +122,13 @@ trait BootHelpers
      */
     protected function withPolicy(string $model, string $policy): void
     {
-        $this->callAfterResolving(Gate::class, static function (Gate $gate) use ($model, $policy): void {
-            $gate->policy($model, $policy);
-        });
+        $this->callAfterResolving(Gate::class, static fn (Gate $gate): Gate => $gate->policy($model, $policy));
     }
 
     /**
      * Schedule a Job or Command using a callback.
      *
-     * @param  callable(\Illuminate\Console\Scheduling\Schedule)  $callback
+     * @param  callable(\Illuminate\Console\Scheduling\Schedule):mixed  $callback
      * @return void
      *
      * @see https://laravelpackage.com/06-artisan-commands.html#scheduling-a-command-in-the-service-provider
@@ -143,9 +136,7 @@ trait BootHelpers
     protected function withSchedule(callable $callback): void
     {
         if ($this->app->runningInConsole()) {
-            $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($callback): void {
-                $callback($schedule);
-            });
+            $this->callAfterResolving(Schedule::class, static fn (Schedule $schedule): mixed => $callback($schedule));
         }
     }
 }

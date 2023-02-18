@@ -52,10 +52,11 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.0"
           - "8.1"
+          - "8.2"
         laravel-constrain:
           - "9.*"
+          - "10.*"
         dependencies:
           - "lowest"
           - "highest"
@@ -79,7 +80,7 @@ jobs:
         run: "composer run-script test"
 
       - name: "Upload coverage to Codecov"
-        uses: "codecov/codecov-action@v2"
+        uses: "codecov/codecov-action@v3"
 
   static_analysis:
     name: "3️⃣ Static Analysis"

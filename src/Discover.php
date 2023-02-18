@@ -2,28 +2,24 @@
 
 namespace Laragear\Meta;
 
-use function app;
-use function array_filter;
-use function class_uses_recursive;
 use Closure;
-use const DIRECTORY_SEPARATOR;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use function in_array;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
-use SplFixedArray;
 use Symfony\Component\Finder\SplFileInfo;
+use function app;
+use function array_filter;
+use function class_uses_recursive;
+use function in_array;
 use function trim;
 use function ucfirst;
+use const DIRECTORY_SEPARATOR;
 
-/**
- * @internal
- */
 class Discover
 {
     /**
@@ -63,7 +59,7 @@ class Discover
      * @param  string  $baseNamespace
      */
     final public function __construct(
-        protected Application $app,
+        protected readonly Application $app,
         protected string $path = '',
         protected string $basePath = '',
         protected string $baseNamespace = '',
@@ -141,7 +137,7 @@ class Discover
                 $methods[] = '__invoke';
             }
 
-            foreach (SplFixedArray::fromArray($class->getMethods(ReflectionMethod::IS_PUBLIC)) as $method) {
+            foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
                 if (Str::is($methods, $method->getName())) {
                     return true;
                 }
@@ -190,7 +186,7 @@ class Discover
     public function withProperty(string ...$properties): static
     {
         $this->filters['property'] = static function (ReflectionClass $class) use ($properties): bool {
-            foreach (SplFixedArray::fromArray($class->getProperties(ReflectionProperty::IS_PUBLIC)) as $property) {
+            foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
                 if (in_array($property->name, $properties, true)) {
                     return true;
                 }
@@ -211,7 +207,7 @@ class Discover
     public function using(string ...$traits): static
     {
         $this->filters['using'] = static function (ReflectionClass $class) use ($traits): bool {
-            foreach (SplFixedArray::fromArray(array_values(class_uses_recursive($class->getName()))) as $trait) {
+            foreach (class_uses_recursive($class->getName()) as $trait) {
                 if (Str::is($traits, $trait)) {
                     return true;
                 }
@@ -232,7 +228,7 @@ class Discover
     public function parentUsing(string ...$traits): static
     {
         $this->filters['using'] = static function (ReflectionClass $class) use ($traits): bool {
-            foreach (SplFixedArray::fromArray($class->getTraitNames()) as $trait) {
+            foreach ($class->getTraitNames() as $trait) {
                 if (Str::is($traits, $trait)) {
                     return true;
                 }
@@ -256,22 +252,25 @@ class Discover
         $filters = array_filter($this->filters);
 
         foreach ($this->listAllFiles() as $file) {
+            // Try to get the class from the file. If we can't then it's not a class file.
             try {
                 $reflection = new ReflectionClass($this->classFromFile($file));
             } catch (ReflectionException) {
                 continue;
             }
 
+            // If the class cannot be instantiated (like abstract, traits or interfaces), continue.
             if (! $reflection->isInstantiable()) {
                 continue;
             }
 
+            // Preemptively pass this class. Now it's left for the filters to keep allowing it.
             $passes = true;
 
             // @phpstan-ignore-next-line
             foreach ($filters as $callback) {
-                if (! $callback($reflection)) {
-                    $passes = false;
+                // If the callback returns false, then didn't pass.
+                if (! $passes = $callback($reflection)) {
                     break;
                 }
             }

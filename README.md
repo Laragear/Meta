@@ -25,26 +25,23 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 ## Requirements
 
-* PHP 8.0 or later.
-* Laravel 9.x or later.
+* PHP 8.1 or later.
+* Laravel 9, 10 or later.
 
 ## Installation
 
-Require this package into your project using Composer:
+Require this package into your project using Composer, along with the development-only testers:
 
 ```bash
 composer require laragear/meta
+composer require --dev laragear/meta-testing
 ```
-
-This package contains traits and classes to ease package development and package testing.
-
-> All classes and traits have been marked with the [`@internal` PHPDoc tag](https://docs.phpdoc.org/guide/references/phpdoc/tags/internal.html). This will avoid some IDE to take into account these structural files into autocompletion / intellisense.
 
 ## Discoverer
 
 The `Discoverer` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others. 
 
-You can use this class, let's make an example about a package that needs to list several classes inside `App\Scoreboards`, that include at least one method starting with `handle`, like `handleAwayTeam()`. 
+Let's make an example about a package that needs to list several classes inside `App\Scoreboards`, that include at least one method starting with `handle`, like `handleAwayTeam()`. 
 
 ```php
 use Laragear\Meta\Discover;
@@ -55,7 +52,7 @@ $classes = Discover::in('Scoreboards')->withMethod('handle*')->all();
 Scoreboard::register($classes);
 ```
 
-By default, it always starts from the Application root path and namespace, which are `app` and `App` respectively. If you need to, you can change both independently using `atNamespace()`. 
+By default, it always starts from the Application root path and namespace, which are `/app` and `\App` respectively. If you need to, you can change both independently using `atNamespace()`. 
 
 ```php
 use Laragear\Meta\Discover;
@@ -63,15 +60,13 @@ use Laragear\Meta\Discover;
 $classes = Discover::in('Scoreboards')->atNamespace('Score')->withMethod('handle*')->all();
 ```
 
-In any case, the discovered classes are returned as a `Collection` instance, with instances of `ReflectionClass` to further filter the list to your needs. For example, we will filter all those scoreboards that have the property `hidden`.
+The discovered classes are returned as a `Collection` instance, with instances of `ReflectionClass` to further filter the list to your needs. For example, we will filter all those scoreboards that have the property `hidden`.
 
 ```php
 use Laragear\Meta\Discover;
 use ReflectionClass;
 
-Discover::in('Events')->all()->filter(function (ReflectionClass $class) {
-    return $class->hasProperty('hidden');
-});
+Discover::in('Events')->all()->filter->hasProperty('hidden');
 ```
 
 > The discovered classes must be always [PSR-4 autoloaded](https://getcomposer.org/doc/04-schema.md#psr-4).
@@ -132,137 +127,6 @@ public function boot()
 }
 ```
 
-## Testing
-
-### Testing the Service Provider
-
-The `InteractsWithServiceProvider` allows to quickly test if the Service Provider of your package has registered all the needed bits of code into the Service Container.
-
-```php
-use Orchestra\Testbench\TestCase
-use Laragear\Meta\Testing\InteractsWithServiceProvider;
-
-class ServiceProviderTest extends TestCase
-{
-    use InteractsWithServiceProvider;
-    
-    public function test_is_registered_as_singleton(): void
-    {
-        $this->assertHasSingletons(\Vendor\Package\MyService::class);
-    }
-}
-```
-
-The available assertions are in this table:
-
-| Methods                       |                            |                               |
-|-------------------------------|----------------------------|-------------------------------|
-| `assertServices()`            | `assertViews()`            | `assertMiddlewareInGroup()`   |
-| `assertSingletons()`          | `assertBladeComponent()`   | `assertGateHasPolicy()`       |
-| `assertConfigMerged()`        | `assertBladeDirectives()`  | `assertGateHasPolicy()`       |
-| `assertPublishes()`           | `assertValidationRules()`  | `assertScheduledTask()`       |
-| `assertPublishesMigrations()` | `assertMiddlewareAlias()`  | `assertScheduledTaskRunsAt()` |
-| `assertTranslations()`        | `assertGlobalMiddleware()` | `assertMacro()`               |
-
-### Service Helpers
-
-The `InteractsWithServices` trait includes helpers to retrieve services from the Service Container and do quick things. 
-
-```php
-public function test_something_important(): void
-{
-    // Get a service from the Service Container, optionally run over a callback.
-    $cache = $this->service('cache', fn ($cache) => $cache->set('foo', 'bar', 30));
-    
-    // Run a service once and forgets it, while running a callback over it.
-    $compiler = $this->serviceOnce('blade.compiler', fn($compiler) => $compiler->check('cool'));
-    
-    // Executes a callback over a REAL service when already mocked.
-    $this->unmock('files', function ($files): void {
-        $files->copyDirectory('foo', 'bar');
-    });
-}
-```
-
-### Validation
-
-This meta package includes a `InteractsWithValidation` trait, that assert if a rule passes or fails using minimal data. This is useful when creating validation rules and testing them without too much boilerplate.
-
-```php
-public function test_validation_rule(): void
-{
-    // Assert the validation rule passes.
-    $this->assertValidationPasses(['test' => 'foo'],['test' => 'my_rule']);
-    
-    // Assert the validation rule fails.
-    $this->assertValidationFails(['test' => 'bar'],['test' => 'my_rule']);
-}
-```
-
-### Middleware
-
-You can test a middleware easily using the `InteractsWithMiddleware` trait and its `middleware()` method. It creates an on-demand route for the given path before sending a test Request to it, so there is no need to register a route.
-
-```php
-use Illuminate\Http\Request;
-use Vendor\Package\Http\Middleware\MyMiddleware;
-use Laragear\Meta\Testing\Http\Middleware\InteractsWithMiddleware;
-
-public function test_middleware(): void
-{
-    $response = $this->middleware(MyMiddleware::class)->using(function (Request $request) {
-        // ...
-    })->post('test', ['foo' => 'bar']);
-    
-    $response->assertOk();
-}
-```
-
-It proxies all `MakesHttpRequest` trait methods, like `get()` or `withUnencryptedCookie()`, so you can get creative with testing your middleware.
-
-```php
-$this->middleware(MyMiddleware::class, 'test_argument')
-    ->withUnencryptedCookie()
-    ->be($this->myTestUser)
-    ->post('test/route', ['foo' => 'bar'])
-    ->assertSee('John');
-```
-
-### Form Request
-
-You can test a Form Request if it passes authorization an validation using different data using the `InteractsWithFormRequests` trait. The `formRequest()` requires the Form Request class, and an `array` with the data to include in the request, to test in isolation.
-
-```php
-public function test_form_request()
-{
-    $this->formRequest(MyFormRequest::class, ['foo' => 'bar'])->assertOk();
-}
-```
-
-### Authorization
-
-To check if a policy or gate works appropriately, use the `InteractsWithAuthorization` trait to check whether a user _can_ or _cannot_ be authorized to a given action.
-
-```php
-public function test_authorization()
-{
-    $this->assertUserCan($this->user, 'doSomething');
-}
-```
-
-### Casts
-
-The `InteractsWithCast` trait allows to quickly test if a cast sets values from an attribute appropriately, and can return a given value from an attribute value. It also supports checking on multiple attributes at a time.
-
-```php
-public function test_cast()
-{
-    $this->cast(MyTestCast::class)
-        ->assertCastFrom(null, new Cast)
-        ->assertCastTo('{"foo":"bar"}', new Cast(['foo' => 'bar']));
-}
-```
-
 ## Builder extender
 
 The `ExtendsBuilder` trait allows a [Global Scope](https://laravel.com/docs/eloquent#global-scopes) to extend the instance of the Eloquent Builder with new methods. Simply add public static methods in the scope that receive a `Builder` instance, and optional parameters if you deem so.
@@ -304,7 +168,24 @@ This meta package includes command helpers for modifying the environment file, o
 |------------------------------|---------------------------------------------------------------------|
 | `WithEnvironmentFile`        | Retrieve and replace environment file keys.                         |
 | `WithProductionConfirmation` | Confirm an action on production environments.                       |
-| `WithStubs`                  | Copy custom stubs to a destination, while replacing custom strings. |
+
+## Upgrading
+
+### Testing
+
+Prior version of Laragear Meta contained testing helpers for packages. These have been migrated to [Laragear MetaTesting](https://github.com/Laragear/MetaTesting) separately. You can use these helpers in your project with Composer to install as development dependency:
+
+```bash
+composer require --dev laragear/meta-testing
+```
+
+### `WithStubs` trait
+
+This trait has been deprecated. Use `Illuminate\Console\GeneratorCommand` instead.
+
+### `WithProductionConfirmation` trait
+
+This trait has been deprecated. Use `Illuminate\Console\ConfirmableTrait` instead.
 
 ## Laravel Octane compatibility
 
@@ -323,4 +204,4 @@ If you discover any security related issues, please email darkghosthunter@gmail.
 
 This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at time of publishing.
 
-[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2022 Laravel LLC.
+[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2023 Laravel LLC.

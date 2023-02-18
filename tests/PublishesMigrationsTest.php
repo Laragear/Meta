@@ -5,9 +5,9 @@ namespace Tests;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\PublishesMigrations;
-use Laragear\Meta\Testing\InteractsWithServiceProvider;
-use function now;
+use Laragear\MetaTesting\InteractsWithServiceProvider;
 use Symfony\Component\Finder\SplFileInfo;
+use function now;
 
 class PublishesMigrationsTest extends TestCase
 {

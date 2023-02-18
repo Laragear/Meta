@@ -2,12 +2,13 @@
 
 namespace Laragear\Meta\Console\Commands;
 
+use Illuminate\Support\Str;
 use function array_keys;
 use function array_values;
-use Illuminate\Support\Str;
 
 /**
- * @internal
+ * @deprecated Use `\Illuminate\Console\GeneratorCommand` instance.
+ * @see \Illuminate\Console\GeneratorCommand
  */
 trait WithStubs
 {

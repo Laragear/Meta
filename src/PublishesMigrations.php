@@ -5,9 +5,6 @@ namespace Laragear\Meta;
 use function now;
 use function preg_replace;
 
-/**
- * @internal
- */
 trait PublishesMigrations
 {
     /**

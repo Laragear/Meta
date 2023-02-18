@@ -18,8 +18,11 @@ class MiddlewareDeclaration
      * @param  \Illuminate\Foundation\Http\Kernel  $kernel
      * @param  string  $middleware
      */
-    public function __construct(protected Router $router, protected Kernel $kernel, protected string $middleware)
-    {
+    public function __construct(
+        protected readonly Router $router,
+        protected readonly Kernel $kernel,
+        protected readonly string $middleware
+    ) {
         //
     }
 

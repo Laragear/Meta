@@ -6,7 +6,8 @@ use RuntimeException;
 use function sprintf;
 
 /**
- * @internal
+ * @deprecated Use `\Illuminate\Console\ConfirmableTrait` instead.
+ * @see \Illuminate\Console\ConfirmableTrait
  */
 trait WithProductionConfirmation
 {

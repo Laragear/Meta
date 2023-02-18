@@ -16,9 +16,9 @@ trait ExtendsBuilder
     /**
      * Cache of methods to avoid using ReflectionClass at instancing.
      *
-     * @var \SplFixedArray
+     * @var \SplFixedArray|null
      */
-    protected static SplFixedArray $methods;
+    public static ?SplFixedArray $methods;
 
     /**
      * Extend the query builder instance with additional methods.
@@ -30,8 +30,8 @@ trait ExtendsBuilder
      */
     public function extend(Builder $query): void
     {
-        foreach (static::$methods ??= SplFixedArray::fromArray($this->filterMethods()->toArray()) as $method) {
-            $query->macro($method, [static::class, $method]);
+        foreach (static::$methods ??= SplFixedArray::fromArray(static::filterMethods()->toArray()) as $method) {
+            $query->macro($method, static::$method(...));
         }
     }
 
@@ -40,14 +40,25 @@ trait ExtendsBuilder
      *
      * @return \Illuminate\Support\Collection
      */
-    protected function filterMethods(): Collection
+    protected static function filterMethods(): Collection
     {
-        return Collection::make((new ReflectionClass($this))->getMethods(Method::IS_PUBLIC | Method::IS_STATIC))
+        return Collection::make((new ReflectionClass(static::class))->getMethods(Method::IS_PUBLIC | Method::IS_STATIC))
             ->filter(static function (Method $method): bool {
                 return $method->isPublic() && $method->isStatic();
             })
             ->map(static function (Method $method): string {
                 return $method->getName();
-            });
+            })
+            ->values();
+    }
+
+    /**
+     * Flushes the methods captured by the trait.
+     *
+     * @return void
+     */
+    public static function flushMethods(): void
+    {
+        static::$methods = null;
     }
 }
