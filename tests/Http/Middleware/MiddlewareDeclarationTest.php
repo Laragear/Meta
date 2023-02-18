@@ -4,6 +4,7 @@ namespace Tests\Http\Middleware;
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Arr;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use Laragear\Meta\Testing\InteractsWithServiceProvider;
 use Tests\TestCase;
@@ -50,14 +51,14 @@ class MiddlewareDeclarationTest extends TestCase
     {
         $this->declaration->first();
 
-        static::assertSame('foo', $this->app->make(Kernel::class)->getMiddlewarePriority()[0]);
+        static::assertSame('foo', Arr::first($this->app->make(Kernel::class)->getMiddlewarePriority()));
     }
 
     public function test_last(): void
     {
         $this->declaration->last();
 
-        static::assertSame('foo', $this->app->make(Kernel::class)->getMiddlewarePriority()[9]);
+        static::assertSame('foo', Arr::last($this->app->make(Kernel::class)->getMiddlewarePriority()));
     }
 
     public function test_shared(): void
