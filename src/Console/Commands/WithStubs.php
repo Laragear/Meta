@@ -2,9 +2,9 @@
 
 namespace Laragear\Meta\Console\Commands;
 
-use Illuminate\Support\Str;
 use function array_keys;
 use function array_values;
+use Illuminate\Support\Str;
 
 /**
  * @deprecated Use `\Illuminate\Console\GeneratorCommand` instance.
