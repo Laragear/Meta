@@ -24,16 +24,21 @@ class ExtendsBuilderTest extends TestCase
                 //
             }
 
-            public static function test()
+            protected static function extendThis()
             {
                 return 'foo';
             }
 
-            protected static function dontExtend()
+            private function extendThat()
             {
             }
 
-            public function alsoDontExtend()
+            public static function dontExtendThis()
+            {
+                return 'foo';
+            }
+
+            public function dontExtendThat()
             {
             }
         };
@@ -42,18 +47,28 @@ class ExtendsBuilderTest extends TestCase
 
         $builder->withGlobalScope('something', $scope);
 
-        static::assertTrue($builder->hasMacro('test'));
-        static::assertFalse($builder->hasMacro('dontExtend'));
-        static::assertFalse($builder->hasMacro('alsoDontExtend'));
-        static::assertSame('foo', $builder->test());
+        static::assertTrue($builder->hasMacro('this'));
+        static::assertTrue($builder->hasMacro('that'));
+        static::assertFalse($builder->hasMacro('dontExtendThis'));
+        static::assertFalse($builder->hasMacro('dontExtendThat'));
+        static::assertFalse($builder->hasMacro('dontThis'));
+        static::assertFalse($builder->hasMacro('dontThat'));
+        static::assertFalse($builder->hasMacro('extendThis'));
+        static::assertFalse($builder->hasMacro('extendThat'));
+        static::assertSame('foo', $builder->this());
 
         $builder = User::query();
 
         $builder->withGlobalScope('something', $scope);
 
-        static::assertTrue($builder->hasMacro('test'));
-        static::assertFalse($builder->hasMacro('dontExtend'));
-        static::assertFalse($builder->hasMacro('alsoDontExtend'));
-        static::assertSame('foo', $builder->test());
+        static::assertTrue($builder->hasMacro('this'));
+        static::assertTrue($builder->hasMacro('that'));
+        static::assertFalse($builder->hasMacro('dontExtendThis'));
+        static::assertFalse($builder->hasMacro('dontExtendThat'));
+        static::assertFalse($builder->hasMacro('dontThis'));
+        static::assertFalse($builder->hasMacro('dontThat'));
+        static::assertFalse($builder->hasMacro('extendThis'));
+        static::assertFalse($builder->hasMacro('extendThat'));
+        static::assertSame('foo', $builder->this());
     }
 }

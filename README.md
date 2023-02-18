@@ -129,7 +129,7 @@ public function boot()
 
 ## Builder extender
 
-The `ExtendsBuilder` trait allows a [Global Scope](https://laravel.com/docs/eloquent#global-scopes) to extend the instance of the Eloquent Builder with new methods. Simply add public static methods in the scope that receive a `Builder` instance, and optional parameters if you deem so.
+The `ExtendsBuilder` trait allows a [Global Scope](https://laravel.com/docs/eloquent#global-scopes) to extend the instance of the Eloquent Builder with new methods. Simply start your builder methods `extend`, no matter wich  visibility scope or if the method is static or not. 
 
 ```php
 use Illuminate\Database\Eloquent\Scope;
@@ -146,12 +146,12 @@ class Cars implements Scope
         // ...
     }
     
-    public static function whereAvailable(Builder $builder)
+    private function extendWhereAvailable($builder)
     {
         return $builder->where('available_at', '>', now());
     }
     
-    public static function whereColor(Builder $builder, string $color)
+    protected static function extendWhereColor($builder, string $color)
     {
         return $builder->where('base_color', $color);
     }
@@ -162,12 +162,25 @@ class Cars implements Scope
 
 ## Command Helpers
 
-This meta package includes command helpers for modifying the environment file, other files, confirm on production, and operate with stub files.
+This meta package includes the `WithEnvironmentFile` helper trait to modify the environment file keys and values.
 
-| Trait                        | Description                                                         |
-|------------------------------|---------------------------------------------------------------------|
-| `WithEnvironmentFile`        | Retrieve and replace environment file keys.                         |
-| `WithProductionConfirmation` | Confirm an action on production environments.                       |
+```php
+use Illuminate\Console\Command;
+use Laragear\Meta\Console\Commands\WithEnvironmentFile;
+
+
+class AddServiceKey extends Command
+{
+    use WithEnvironmentFile;
+    
+    public function handle()
+    {
+        // ...
+        
+        $this->putEnvKey('AWESOME_SERVICE', $this->argument('service_key'))
+    }
+}
+```
 
 ## Upgrading
 
@@ -186,6 +199,12 @@ This trait has been deprecated. Use `Illuminate\Console\GeneratorCommand` instea
 ### `WithProductionConfirmation` trait
 
 This trait has been deprecated. Use `Illuminate\Console\ConfirmableTrait` instead.
+
+### `ExtendsBuilder` trait
+
+The trait has been simplified to take advantage of [first-class callables](https://wiki.php.net/rfc/first_class_callable_syntax), which allows to just register any method that starts with `extends`.
+
+There is no need to set methods publicly static.
 
 ## Laravel Octane compatibility
 

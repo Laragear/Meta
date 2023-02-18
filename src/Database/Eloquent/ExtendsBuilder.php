@@ -7,6 +7,10 @@ use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionMethod as Method;
 use SplFixedArray;
+use function lcfirst;
+use function str_starts_with;
+use function strlen;
+use function substr;
 
 /**
  * @internal
@@ -31,7 +35,7 @@ trait ExtendsBuilder
     public function extend(Builder $query): void
     {
         foreach (static::$methods ??= SplFixedArray::fromArray(static::filterMethods()->toArray()) as $method) {
-            $query->macro($method, static::$method(...));
+            $query->macro(lcfirst(substr($method, 6)), static::$method(...));
         }
     }
 
@@ -42,9 +46,10 @@ trait ExtendsBuilder
      */
     protected static function filterMethods(): Collection
     {
-        return Collection::make((new ReflectionClass(static::class))->getMethods(Method::IS_PUBLIC | Method::IS_STATIC))
+        return Collection::make((new ReflectionClass(static::class))->getMethods())
             ->filter(static function (Method $method): bool {
-                return $method->isPublic() && $method->isStatic();
+                return strlen($method->getName()) > 6
+                    && str_starts_with($method->getName(), 'extend');
             })
             ->map(static function (Method $method): string {
                 return $method->getName();
