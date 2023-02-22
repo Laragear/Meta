@@ -3,8 +3,9 @@
 namespace Tests\Http\Middleware;
 
 use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
+use Illuminate\Support\ServiceProvider;
+use Laragear\Meta\BootHelpers;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use Laragear\MetaTesting\InteractsWithServiceProvider;
 use Tests\TestCase;
@@ -19,11 +20,14 @@ class MiddlewareDeclarationTest extends TestCase
     {
         parent::setUp();
 
-        $this->declaration = new MiddlewareDeclaration(
-            $this->app->make(Router::class),
-            $this->app->make(Kernel::class),
-            'foo'
-        );
+        $this->declaration = (new class($this->app) extends ServiceProvider  {
+            use BootHelpers;
+
+            public function getDeclaration()
+            {
+                return $this->withMiddleware('foo');
+            }
+        })->getDeclaration();
     }
 
     public function test_as(): void

@@ -3,7 +3,7 @@
 namespace Laragear\Meta\Http\Middleware;
 
 use Closure;
-use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Routing\Router;
 
 /**
@@ -15,12 +15,12 @@ class MiddlewareDeclaration
      * Create a new Middleware declaration instance.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @param  \Illuminate\Foundation\Http\Kernel  $kernel
+     * @param  \Illuminate\Contracts\Http\Kernel  $kernel
      * @param  string  $middleware
      */
     public function __construct(
         protected readonly Router $router,
-        protected readonly Kernel $kernel,
+        protected readonly KernelContract $kernel,
         protected readonly string $middleware
     ) {
         //

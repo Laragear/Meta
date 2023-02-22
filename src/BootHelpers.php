@@ -6,12 +6,12 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Router;
+use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use function is_callable;
 use function is_string;
-use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 
 trait BootHelpers
 {
@@ -71,7 +71,9 @@ trait BootHelpers
      */
     protected function withMiddleware(string $class): MiddlewareDeclaration
     {
-        return new MiddlewareDeclaration($this->app->make(Router::class), $this->app->make(Kernel::class), $class);
+        return new MiddlewareDeclaration(
+            $this->app->make(Router::class), $this->app->make(KernelContract::class), $class
+        );
     }
 
     /**

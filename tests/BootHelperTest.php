@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Manager;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\BootHelpers;
-use Tests\Testing\TestPolicy;
+use Orchestra\Testbench\Http\Kernel;
 
 class BootHelperTest extends TestCase
 {
@@ -90,9 +90,12 @@ class BootHelperTest extends TestCase
         static::assertSame('test-bar-message', $validator->getMessageBag()->first());
     }
 
-    public function test_with_middleware(): void
+    public function test_with_middleware_does_not_edit_middleware_in_router(): void
     {
-        static::assertEmpty($this->app->make('router')->getMiddleware());
+        static::assertSame(
+            $this->app->make(Kernel::class)->getRouteMiddleware(),
+            $this->app->make('router')->getMiddleware(),
+        );
     }
 
     public function test_with_listener(): void
