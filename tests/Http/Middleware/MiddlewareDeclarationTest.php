@@ -20,7 +20,8 @@ class MiddlewareDeclarationTest extends TestCase
     {
         parent::setUp();
 
-        $this->declaration = (new class($this->app) extends ServiceProvider  {
+        $this->declaration = (new class($this->app) extends ServiceProvider
+        {
             use BootHelpers;
 
             public function getDeclaration()

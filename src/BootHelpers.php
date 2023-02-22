@@ -9,9 +9,9 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Router;
-use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use function is_callable;
 use function is_string;
+use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 
 trait BootHelpers
 {
@@ -67,6 +67,7 @@ trait BootHelpers
      * Returns a middleware declaration.
      *
      * @template  TValue
+     *
      * @param  TValue|class-string|string  $class
      * @return \Laragear\Meta\Http\Middleware\MiddlewareDeclaration<TValue>
      */
