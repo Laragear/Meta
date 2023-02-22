@@ -51,7 +51,10 @@ trait ExtendsBuilder
     {
         return Collection::make((new ReflectionClass(static::class))->getMethods())
             ->filter(static function (Method $method): bool {
-                return strlen($method->getName()) > 6
+                return ! $method->isConstructor()
+                    && ! $method->isDestructor()
+                    && ! $method->isAbstract()
+                    && strlen($method->getName()) > 6
                     && str_starts_with($method->getName(), 'extend');
             })
             ->map(static function (Method $method): SplFixedArray {
