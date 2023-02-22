@@ -18,9 +18,9 @@ class MiddlewareDeclaration
      * @param  class-string|string  $middleware
      */
     public function __construct(
-        protected readonly Router $router,
-        protected readonly KernelContract $kernel,
-        protected readonly string $middleware
+        protected Router $router,
+        protected KernelContract $kernel,
+        protected string $middleware
     ) {
         //
     }

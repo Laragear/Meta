@@ -2,6 +2,7 @@
 
 namespace Laragear\Meta\Database\Eloquent;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use function lcfirst;
@@ -34,8 +35,10 @@ trait ExtendsBuilder
      */
     public function extend(Builder $query): void
     {
-        foreach (static::$methods ??= SplFixedArray::fromArray(static::filterMethods()->toArray()) as $method) {
-            $query->macro(lcfirst(substr($method, 6)), static::$method(...));
+        static::$methods ??= SplFixedArray::fromArray(static::filterMethods()->toArray());
+
+        foreach (static::$methods as [$name, $isStatic, $method]) {
+            $query->macro($name, Closure::fromCallable([$isStatic ? static::class : $this, $method]));
         }
     }
 
@@ -48,11 +51,16 @@ trait ExtendsBuilder
     {
         return Collection::make((new ReflectionClass(static::class))->getMethods())
             ->filter(static function (Method $method): bool {
-                return strlen($method->getName()) > 6
+                return ! $method->isConstructor()
+                    && ! $method->isDestructor()
+                    && ! $method->isAbstract()
+                    && strlen($method->getName()) > 6
                     && str_starts_with($method->getName(), 'extend');
             })
-            ->map(static function (Method $method): string {
-                return $method->getName();
+            ->map(static function (Method $method): SplFixedArray {
+                return SplFixedArray::fromArray([
+                    lcfirst(substr($method->getName(), 6)), $method->isStatic(), $method->getName(),
+                ]);
             })
             ->values();
     }

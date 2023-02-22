@@ -59,7 +59,7 @@ class Discover
      * @param  string  $baseNamespace
      */
     final public function __construct(
-        protected readonly Application $app,
+        protected Application $app,
         protected string $path = '',
         protected string $basePath = '',
         protected string $baseNamespace = '',
