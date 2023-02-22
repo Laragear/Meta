@@ -52,6 +52,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.0"
           - "8.1"
           - "8.2"
         laravel-constrain:
@@ -60,6 +61,9 @@ jobs:
         dependencies:
           - "lowest"
           - "highest"
+        exclude:
+          - laravel-constrain: "10.*"
+            php-version: "8.0"
     steps:
       - name: "Set up PHP"
         uses: "shivammathur/setup-php@v2"
@@ -94,6 +98,7 @@ jobs:
         with:
           tools: "phpstan"
           php-version: "latest"
+          coverage: "none"
 
       - name: "Checkout code"
         uses: "actions/checkout@v3"
