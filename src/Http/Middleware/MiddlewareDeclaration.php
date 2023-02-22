@@ -14,8 +14,8 @@ class MiddlewareDeclaration
      * Create a new Middleware declaration instance.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @param  \Illuminate\Contracts\Http\Kernel  $kernel
-     * @param  TValue|class-string|class  $middleware
+     * @param  \Illuminate\Foundation\Http\Kernel  $kernel
+     * @param  TValue|class-string|string  $middleware
      */
     public function __construct(
         protected readonly Router $router,
