@@ -2,12 +2,11 @@
 
 namespace Laragear\Meta\Http\Middleware;
 
-use Closure;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Routing\Router;
 
 /**
- * @internal
+ * @template TValue
  */
 class MiddlewareDeclaration
 {
@@ -16,7 +15,7 @@ class MiddlewareDeclaration
      *
      * @param  \Illuminate\Routing\Router  $router
      * @param  \Illuminate\Contracts\Http\Kernel  $kernel
-     * @param  string  $middleware
+     * @param  TValue|class-string|class  $middleware
      */
     public function __construct(
         protected readonly Router $router,
@@ -87,10 +86,10 @@ class MiddlewareDeclaration
     /**
      * Makes the middleware a shared instance.
      *
-     * @param  (\Closure(\Illuminate\Contracts\Foundation\Application):mixed)|null  $callback
+     * @param  (callable(\Illuminate\Contracts\Foundation\Application):TValue)|null  $callback
      * @return $this
      */
-    public function shared(Closure $callback = null): static
+    public function shared(callable $callback = null): static
     {
         $this->kernel->getApplication()->singleton($this->middleware, $callback);
 

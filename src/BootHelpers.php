@@ -66,8 +66,9 @@ trait BootHelpers
     /**
      * Returns a middleware declaration.
      *
-     * @param  string  $class
-     * @return \Laragear\Meta\Http\Middleware\MiddlewareDeclaration
+     * @template  TValue
+     * @param  TValue|class-string|string  $class
+     * @return \Laragear\Meta\Http\Middleware\MiddlewareDeclaration<TValue>
      */
     protected function withMiddleware(string $class): MiddlewareDeclaration
     {
