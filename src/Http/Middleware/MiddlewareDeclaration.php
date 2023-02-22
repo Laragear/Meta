@@ -15,7 +15,7 @@ class MiddlewareDeclaration
      *
      * @param  \Illuminate\Routing\Router  $router
      * @param  \Illuminate\Foundation\Http\Kernel  $kernel
-     * @param  TValue|class-string|string  $middleware
+     * @param  class-string|string  $middleware
      */
     public function __construct(
         protected readonly Router $router,
