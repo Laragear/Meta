@@ -43,7 +43,7 @@ class ExtendsBuilderTest extends TestCase
             }
         };
 
-        $this->beforeApplicationDestroyed($scope::flushMethods(...));
+        $this->beforeApplicationDestroyed([$scope, 'flushMethods']);
 
         $builder->withGlobalScope('something', $scope);
 
