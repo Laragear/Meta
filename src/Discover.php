@@ -2,23 +2,23 @@
 
 namespace Laragear\Meta;
 
-use function app;
-use function array_filter;
-use function class_uses_recursive;
 use Closure;
-use const DIRECTORY_SEPARATOR;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use function in_array;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use Symfony\Component\Finder\SplFileInfo;
+use function app;
+use function array_filter;
+use function class_uses_recursive;
+use function in_array;
 use function trim;
 use function ucfirst;
+use const DIRECTORY_SEPARATOR;
 
 class Discover
 {
@@ -230,6 +230,27 @@ class Discover
         $this->filters['using'] = static function (ReflectionClass $class) use ($traits): bool {
             foreach ($class->getTraitNames() as $trait) {
                 if (Str::is($traits, $trait)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        return $this;
+    }
+
+    /**
+     * Filters classes implementing the given public properties.
+     *
+     * @param  string|class-string  ...$attributes
+     * @return $this
+     */
+    public function withAttributes(string ...$attributes): static
+    {
+        $this->filters['attributes'] = static function (ReflectionClass $class) use ($attributes): bool {
+            foreach ($class->getAttributes() as $attribute) {
+                if (in_array($attribute->getName(), $attributes, true)) {
                     return true;
                 }
             }

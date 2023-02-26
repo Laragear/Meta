@@ -2,15 +2,16 @@
 
 namespace Tests;
 
-use const DIRECTORY_SEPARATOR as DS;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Laragear\Meta\Discover;
 use Mockery;
-use function realpath;
 use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Component\Finder\SplFileInfo;
+use function realpath;
+use function tap;
+use const DIRECTORY_SEPARATOR as DS;
 
 class DiscoverTest extends TestCase
 {
@@ -214,5 +215,18 @@ class DiscoverTest extends TestCase
 
         static::assertCount(1, $classes);
         static::assertTrue($classes->has(\App\Events\Bar\Baz\Cougar::class));
+    }
+
+    public function test_filters_by_attribute_names(): void
+    {
+        File::expects('files')->with($this->app->path('Events'))->andReturn([
+            $this->file($this->app->path('Events/AttributeClass.php')),
+            $this->file($this->app->path('Events/Bar.php')),
+        ]);
+
+        $classes = Discover::in('Events')->withAttributes('MockClass')->all();
+
+        static::assertCount(1, $classes);
+        static::assertTrue($classes->has(\App\Events\AttributeClass::class));
     }
 }
