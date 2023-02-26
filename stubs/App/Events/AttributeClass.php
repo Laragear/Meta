@@ -5,7 +5,7 @@ namespace App\Events;
 use App\Events\Bar\TestInterface;
 use Illuminate\Support\Fluent;
 
-#[\MockClass("foo")]
+#[\MockClass('foo')]
 class AttributeClass implements TestInterface
 {
     public function handle()
