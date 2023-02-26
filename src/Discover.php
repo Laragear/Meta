@@ -241,6 +241,27 @@ class Discover
     }
 
     /**
+     * Filters classes implementing the given public properties.
+     *
+     * @param  string|class-string  ...$attributes
+     * @return $this
+     */
+    public function withAttributes(string ...$attributes): static
+    {
+        $this->filters['attributes'] = static function (ReflectionClass $class) use ($attributes): bool {
+            foreach ($class->getAttributes() as $attribute) {
+                if (in_array($attribute->getName(), $attributes, true)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        return $this;
+    }
+
+    /**
      * Returns a Collection for all the classes found.
      *
      * @return \Illuminate\Support\Collection<string, \ReflectionClass>
