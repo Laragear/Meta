@@ -2,11 +2,12 @@
 
 namespace Tests\Console\Commands;
 
-use function app;
-use function func_get_args;
 use Laragear\Meta\Console\Commands\WithProductionConfirmation;
 use RuntimeException;
 use Tests\TestCase;
+
+use function app;
+use function func_get_args;
 
 class WithProductionConfirmationTest extends TestCase
 {

@@ -10,9 +10,7 @@ trait PublishesMigrations
     /**
      * Publishes migrations from the given path.
      *
-     * @param  array|string  $paths
-     * @param  string  $groups
-     * @return void
+     * @param  string[]|string  $paths
      */
     protected function publishesMigrations(array|string $paths, string $groups = 'migrations'): void
     {

@@ -3,7 +3,7 @@
     "description": "A Laravel Package helper for Laravel Packages",
     "type": "library",
     "license": "MIT",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "keywords": [
         "laravel",
@@ -21,12 +21,12 @@
         "issues": "https://github.com/Laragear/Meta/issues"
     },
     "require": {
-        "php": "8.*"
+        "php": "^8.1"
     },
     "require-dev": {
-        "laragear/meta-testing": "^1.3.0",
-        "laravel/breeze": "1.*",
-        "orchestra/testbench": "^7.22|8.*"
+        "laragear/meta-testing": "2.*",
+        "laravel/breeze": "2.*",
+        "orchestra/testbench": "8.*|9.*"
     },
     "autoload": {
         "psr-4": {

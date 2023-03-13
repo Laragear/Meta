@@ -25,8 +25,7 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 ## Requirements
 
-* PHP 8 or later.
-* Laravel 9, 10 or later.
+* Laravel 10 or later.
 
 ## Installation
 
@@ -41,64 +40,7 @@ composer require --dev laragear/meta-testing
 
 The `Discoverer` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others. 
 
-Let's make an example about a package that needs to list several classes inside `App\Scoreboards`, that include at least one method starting with `handle`, like `handleAwayTeam()`. 
-
-```php
-use Laragear\Meta\Discover;
-use Vendor\Package\Facades\Scoreboard;
-
-$classes = Discover::in('Scoreboards')->withMethod('handle*')->all();
-
-Scoreboard::register($classes);
-```
-
-By default, it always starts from the Application root path and namespace, which are `/app` and `\App` respectively. If you need to, you can change both independently using `atNamespace()`. 
-
-```php
-use Laragear\Meta\Discover;
-
-$classes = Discover::in('Scoreboards')->atNamespace('Score')->withMethod('handle*')->all();
-```
-
-The discovered classes are returned as a `Collection` instance, with instances of `ReflectionClass` to further filter the list to your needs. For example, we will filter all those scoreboards that have the property `hidden`.
-
-```php
-use Laragear\Meta\Discover;
-use ReflectionClass;
-
-Discover::in('Events')->all()->filter->hasProperty('hidden');
-```
-
-> The discovered classes must be always [PSR-4 autoloaded](https://getcomposer.org/doc/04-schema.md#psr-4).
-
-## Boot Helpers
-
-The `BootHelpers` trait adds some convenient Service Provider methods at **boot** time to add rules, middleware, listeners, and subscribers.
-
-```php
-public function boot()
-{
-    // Extends a service manager with a custom driver
-    $this->withDriver('cache', 'nfs', fn () => new NfsCacheDriver());
-    
-    // Registers a validation rule.
-    $this->withValidationRule('age', fn($attribute, $value) => $value > 18, 'You are too young!', true);
-    
-    // Registers a middleware using fluent methods.
-    $this->withMiddleware(OnlyAdults::class)->as('adults');
-    
-    // Registers a listener for a given event.
-    $this->withListener('birthday', GreetOnBirthday::class);
-    
-    // Registers a subscriber for many events.
-    $this->withSubscriber(BirthdaySubscriber::class);
-    
-    // Registers one or many scheduled jobs using a callback.
-    $this->withSchedule(function ($schedule) {
-        $schedule->command('package:something')->everyFifteenMinutes();
-    }) 
-}
-```
+The `Discoverer` class has been moved into [its own repository](https://github.com/Laragear/Discover).
 
 ### Middleware declaration
 
@@ -223,4 +165,4 @@ If you discover any security related issues, please email darkghosthunter@gmail.
 
 This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at time of publishing.
 
-[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2023 Laravel LLC.
+[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2024 Laravel LLC.

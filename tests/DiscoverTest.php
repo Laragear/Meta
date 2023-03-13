@@ -2,16 +2,18 @@
 
 namespace Tests;
 
-use const DIRECTORY_SEPARATOR as DS;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Laragear\Meta\Discover;
 use Mockery;
-use function realpath;
 use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Component\Finder\SplFileInfo;
+
+use function realpath;
 use function tap;
+
+use const DIRECTORY_SEPARATOR as DS;
 
 class DiscoverTest extends TestCase
 {
