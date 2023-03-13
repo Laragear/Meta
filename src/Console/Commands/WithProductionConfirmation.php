@@ -3,6 +3,7 @@
 namespace Laragear\Meta\Console\Commands;
 
 use RuntimeException;
+
 use function sprintf;
 
 /**

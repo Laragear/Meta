@@ -4,6 +4,7 @@ namespace Laragear\Meta\Console\Commands;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+
 use const PHP_EOL;
 
 trait WithEnvironmentFile
