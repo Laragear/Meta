@@ -31,16 +31,20 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 Require this package into your project using Composer, along with the development-only testers:
 
-```bash
+```shell
 composer require laragear/meta
 composer require --dev laragear/meta-testing
 ```
 
 ## Discoverer
 
-The `Discoverer` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others. 
+The `Discover` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others. 
 
-The `Discoverer` class has been moved into [its own repository](https://github.com/Laragear/Discover).
+It has been moved into [its own repository](https://github.com/Laragear/Discover). You may install it alongside this package, but is not required to.
+
+```shell
+composer require laragear/discover
+```
 
 ### Middleware declaration
 
