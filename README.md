@@ -46,7 +46,7 @@ It has been moved into [its own repository](https://github.com/Laragear/Discover
 composer require laragear/discover
 ```
 
-### Middleware declaration
+## Middleware declaration
 
 When using `withMiddleware()` you will receive a `MiddlewareDeclaration` object with convenient methods to register the middleware globally or inside a group, set it as first/last in the global priority stack, and register an alias for it.
 
@@ -138,19 +138,11 @@ Prior version of Laragear Meta contained testing helpers for packages. These hav
 composer require --dev laragear/meta-testing
 ```
 
-### `WithStubs` trait
+### `PublishesMigrations` trait
 
-This trait has been deprecated. Use `Illuminate\Console\GeneratorCommand` instead.
+This trait has been eliminated.
 
-### `WithProductionConfirmation` trait
-
-This trait has been deprecated. Use `Illuminate\Console\ConfirmableTrait` instead.
-
-### `ExtendsBuilder` trait
-
-The trait has been simplified to take advantage of [first-class callables](https://wiki.php.net/rfc/first_class_callable_syntax), which allows to just register any method that starts with `extends`.
-
-There is no need to set methods publicly static.
+This `publishesMigration` method has a signature collision on Laravel 11.x. If you plan to import it to a multi-version Laravel package, consider using your own publishing logic.
 
 ## Laravel Octane compatibility
 
