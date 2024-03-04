@@ -103,7 +103,8 @@ class Cars implements Scope
     }
 }
 ```
-
+> [!TIP]
+> 
 > If you need the model being queried, you can always use `getModel()` over the Eloquent Builder instance. 
 
 ## Command Helpers
