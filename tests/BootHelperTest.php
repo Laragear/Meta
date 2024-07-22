@@ -12,6 +12,7 @@ use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\BootHelpers;
 use Orchestra\Testbench\Attributes\DefineEnvironment;
 use Orchestra\Testbench\Http\Kernel;
+
 use function method_exists;
 use function realpath;
 
@@ -159,11 +160,9 @@ class BootHelperTest extends TestCase
             static::assertSame([$this->app->databasePath('migrations')], $files[__DIR__.'/../stubs/migrations']);
         } else {
             static::assertSame([
-                realpath(__DIR__.'/../stubs/migrations/0000_00_00_000000_create_table_foo.php') =>
-                    $this->app->databasePath('migrations/2012_01_01_000001_create_table_foo.php')
+                realpath(__DIR__.'/../stubs/migrations/0000_00_00_000000_create_table_foo.php') => $this->app->databasePath('migrations/2012_01_01_000001_create_table_foo.php'),
             ], $files);
         }
-
     }
 }
 

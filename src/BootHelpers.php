@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
 use SplFileInfo;
+
 use function array_fill;
 use function array_fill_keys;
 use function count;
@@ -152,7 +153,6 @@ trait BootHelpers
         }
     }
 
-
     /**
      * Publish migrations into the application database migrations path.
      *
@@ -161,7 +161,7 @@ trait BootHelpers
      */
     protected function withPublishableMigrations(array|string $directories, array|string $groups = 'migrations'): void
     {
-        if (!$this->app->runningInConsole()) {
+        if (! $this->app->runningInConsole()) {
             return;
         }
 
@@ -187,7 +187,7 @@ trait BootHelpers
                         'migrations/'.
                         $now->addSecond()->format('Y_m_d_His').
                         Str::match('/(?<=\d{4}_\d{2}_\d{2}_\d{6}).*/', $file->getFilename())
-                    )
+                    ),
                 ];
             });
 
