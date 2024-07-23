@@ -6,10 +6,15 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Manager;
 use Illuminate\Support\ServiceProvider;
 use Laragear\Meta\BootHelpers;
+use Orchestra\Testbench\Attributes\DefineEnvironment;
 use Orchestra\Testbench\Http\Kernel;
+
+use function method_exists;
+use function realpath;
 
 class BootHelperTest extends TestCase
 {
@@ -140,6 +145,28 @@ class BootHelperTest extends TestCase
         static::assertCount(1, $schedule->events());
         static::assertStringContainsString('inspire', $schedule->events()[0]->command);
     }
+
+    protected function stopTime(): void
+    {
+        Carbon::setTestNow(Carbon::create(2012));
+    }
+
+    /**
+     * @define-env stopTime
+     */
+    #[DefineEnvironment('stopTime')]
+    public function test_with_publishable_migrations(): void
+    {
+        $files = ServiceProvider::$publishes[TestServiceProvider::class];
+
+        if (method_exists(ServiceProvider::class, 'publishesMigrations')) {
+            static::assertSame([$this->app->databasePath('migrations')], $files[__DIR__.'/../stubs/migrations']);
+        } else {
+            static::assertSame([
+                realpath(__DIR__.'/../stubs/migrations/0000_00_00_000000_create_table_foo.php') => $this->app->databasePath('migrations/2012_01_01_000001_create_table_foo.php'),
+            ], $files);
+        }
+    }
 }
 
 class TestServiceProvider extends ServiceProvider
@@ -193,6 +220,8 @@ class TestServiceProvider extends ServiceProvider
         $this->withSchedule(function (Schedule $schedule): void {
             $schedule->command('inspire')->everyFifteenMinutes();
         });
+
+        $this->withPublishableMigrations(__DIR__.'/../stubs/migrations');
     }
 }
 

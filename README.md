@@ -11,7 +11,7 @@ A Laravel Package helper for Laravel Packages.
 ```php
 public function boot()
 {
-    $this->publishMigrations(__DIR__.'/../migrations');
+    $this->withPublishableMigrations(__DIR__.'/../migrations');
     
     $this->withSchedule(fn($schedule) => $schedule->command('inspire')->hourly());
 }
@@ -103,6 +103,7 @@ class Cars implements Scope
     }
 }
 ```
+
 > [!TIP]
 > 
 > If you need the model being queried, you can always use `getModel()` over the Eloquent Builder instance. 
@@ -114,7 +115,6 @@ This meta package includes the `WithEnvironmentFile` helper trait to modify the 
 ```php
 use Illuminate\Console\Command;
 use Laragear\Meta\Console\Commands\WithEnvironmentFile;
-
 
 class AddServiceKey extends Command
 {
@@ -143,7 +143,18 @@ composer require --dev laragear/meta-testing
 
 This trait has been eliminated.
 
-This `publishesMigration` method has a signature collision on Laravel 11.x. If you plan to import it to a multi-version Laravel package, consider using your own publishing logic.
+~~This `publishesMigrations` method has a signature collision on Laravel 11.x. If you plan to import it to a multi-version Laravel package, consider using your own publishing logic.~~
+
+You should use the `withPublishableMigrations()` methods with the directories where your migrations are. This method uses `publishesMigrations()` if available, and fallbacks to publishing each single migration file in the path.
+
+```php
+public function boot()
+{
+    // ...
+    
+    $this->withPublishableMigrations(__DIR__.'/../stubs/migrations');
+}
+```
 
 ## Laravel Octane compatibility
 

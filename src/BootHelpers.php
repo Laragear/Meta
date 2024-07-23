@@ -9,10 +9,18 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
+use SplFileInfo;
 
+use function array_fill;
+use function array_fill_keys;
+use function count;
 use function is_callable;
 use function is_string;
+use function method_exists;
+use function now;
 
 trait BootHelpers
 {
@@ -143,5 +151,46 @@ trait BootHelpers
         if ($this->app->runningInConsole()) {
             $this->callAfterResolving(Schedule::class, static fn (Schedule $schedule): mixed => $callback($schedule));
         }
+    }
+
+    /**
+     * Publish migrations into the application database migrations path.
+     *
+     * @param  string[]|string  $directories
+     * @param  string[]|string  $groups
+     */
+    protected function withPublishableMigrations(array|string $directories, array|string $groups = 'migrations'): void
+    {
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        $directories = (array) $directories;
+
+        if (method_exists($this, 'publishesMigrations')) {
+            $this->publishesMigrations(array_fill_keys(
+                $directories, array_fill(0, count($directories), $this->app->databasePath('migrations'))
+            ), $groups);
+
+            return;
+        }
+
+        $now = now()->toMutable();
+
+        $files = Collection::make($directories)
+            ->flatMap(function (string $path): array {
+                return $this->app->make('files')->files($path);
+            })
+            ->mapWithKeys(function (SplFileInfo $file) use ($now): array {
+                return [
+                    $file->getRealPath() => $this->app->databasePath(
+                        'migrations/'.
+                        $now->addSecond()->format('Y_m_d_His').
+                        Str::match('/(?<=\d{4}_\d{2}_\d{2}_\d{6}).*/', $file->getFilename())
+                    ),
+                ];
+            });
+
+        $this->publishes($files->toArray(), 'migrations');
     }
 }
