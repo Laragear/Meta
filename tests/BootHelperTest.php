@@ -146,11 +146,14 @@ class BootHelperTest extends TestCase
         static::assertStringContainsString('inspire', $schedule->events()[0]->command);
     }
 
-    public static function stopTime(): void
+    protected function stopTime(): void
     {
         Carbon::setTestNow(Carbon::create(2012));
     }
 
+    /**
+     * @define-env stopTime
+     */
     #[DefineEnvironment('stopTime')]
     public function test_with_publishable_migrations(): void
     {
