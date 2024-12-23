@@ -32,7 +32,7 @@ trait BootHelpers
      * @param  callable|string|null  $callback
      * @return void
      */
-    protected function withDriver(string $service, string|array $driver, callable|string $callback = null): void
+    protected function withDriver(string $service, string|array $driver, callable|string|null $callback = null): void
     {
         if (is_string($driver)) {
             $driver = [$driver => $callback];
@@ -57,7 +57,7 @@ trait BootHelpers
     protected function withValidationRule(
         string $rule,
         callable|string $callback,
-        callable|string $message = null,
+        callable|string|null $message = null,
         bool $implicit = false
     ): void {
         $this->callAfterResolving(

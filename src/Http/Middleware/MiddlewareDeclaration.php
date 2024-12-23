@@ -89,7 +89,7 @@ class MiddlewareDeclaration
      * @param  (callable(\Illuminate\Contracts\Foundation\Application):TValue)|null  $callback
      * @return $this
      */
-    public function shared(callable $callback = null): static
+    public function shared(?callable $callback = null): static
     {
         $this->kernel->getApplication()->singleton($this->middleware, $callback);
 
