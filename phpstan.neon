@@ -1,5 +1,5 @@
 parameters:
     ignoreErrors:
-        - '#Trait Laragear\\Meta\BootHelpers is used zero times and is not analysed\.#'
+        - '#Trait Laragear\\Meta\\BootHelpers is used zero times and is not analysed\.#'
         - '#Trait Laragear\\Meta\\Console\\Commands\\WithEnvironmentFile is used zero times and is not analysed\.#'
         - '#Trait Laragear\\Meta\\Database\\Eloquent\\ExtendsBuilder is used zero times and is not analysed\.#'
