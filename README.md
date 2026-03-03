@@ -4,7 +4,7 @@
 [![Codecov Coverage](https://codecov.io/gh/Laragear/Meta/graph/badge.svg?token=bogXap7Rjn)](https://codecov.io/gh/Laragear/Meta)
 [![Maintainability](https://qlty.sh/badges/69538547-2e27-49d1-9c33-fdc3c7f35f33/maintainability.svg)](https://qlty.sh/gh/Laragear/projects/Meta)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=Laragear_Meta&metric=alert_status)](https://sonarcloud.io/dashboard?id=Laragear_Meta)
-[![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/9.x/octane#introduction)
+[![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/13.x/octane#introduction)
 
 A Laravel Package helper for Laravel Packages.
 
@@ -25,22 +25,28 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 ## Requirements
 
-* Laravel 11 or later.
+* PHP 8.3 or later
+* Laravel 12 or later.
 
 ## Installation
 
-Require this package into your project using Composer, along with the development-only testers:
+Require this package into your project using Composer:
 
 ```shell
 composer require laragear/meta
+```
+
+### Package testers 
+
+You may additionally install testing helpers for your package. These should be installed in your `require-dev` arm of your composer so these are not shipped in the production version of your package.
+
+```shell
 composer require --dev laragear/meta-testing
 ```
 
-## Discoverer
+### Discoverer
 
 The `Discover` class is a builder that allows discovering classes under a given path. It contains various fluent methods to filter the classes to discover, like methods, properties, interfaces and traits, among others. 
-
-It has been moved into [its own repository](https://github.com/Laragear/Discover). You may install it alongside this package, but is not required to.
 
 ```shell
 composer require laragear/discover
@@ -110,7 +116,7 @@ class Cars implements Scope
 
 ## Command Helpers
 
-This meta package includes the `WithEnvironmentFile` helper trait to modify the environment file keys and values.
+This meta-package includes the `WithEnvironmentFile` helper trait to modify the environment file keys and values.
 
 ```php
 use Illuminate\Console\Command;
@@ -126,33 +132,6 @@ class AddServiceKey extends Command
         
         $this->putEnvKey('AWESOME_SERVICE', $this->argument('service_key'))
     }
-}
-```
-
-## Upgrading
-
-### Testing
-
-Prior version of Laragear Meta contained testing helpers for packages. These have been migrated to [Laragear MetaTesting](https://github.com/Laragear/MetaTesting) separately. You can use these helpers in your project with Composer to install as development dependency:
-
-```bash
-composer require --dev laragear/meta-testing
-```
-
-### `PublishesMigrations` trait
-
-This trait has been eliminated.
-
-~~This `publishesMigrations` method has a signature collision on Laravel 11.x. If you plan to import it to a multi-version Laravel package, consider using your own publishing logic.~~
-
-You should use the `withPublishableMigrations()` methods with the directories where your migrations are. This method uses `publishesMigrations()` if available, and fallbacks to publishing each single migration file in the path.
-
-```php
-public function boot()
-{
-    // ...
-    
-    $this->withPublishableMigrations(__DIR__.'/../stubs/migrations');
 }
 ```
 

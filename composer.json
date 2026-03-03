@@ -21,14 +21,14 @@
         "issues": "https://github.com/Laragear/Meta/issues"
     },
     "require": {
-        "illuminate/support": "11.*|12.*",
-        "illuminate/filesystem": "11.*|12.*",
-        "illuminate/database": "11.*|12.*",
-        "illuminate/http": "11.*|12.*"
+        "illuminate/support": "12.*|13.*",
+        "illuminate/filesystem": "12.*|13.*",
+        "illuminate/database": "12.*|13.*",
+        "illuminate/http": "12.*|13.*"
     },
     "require-dev": {
-        "laragear/meta-testing": "3.*",
-        "orchestra/testbench": "9.*|10.*"
+        "laragear/meta-testing": "4.*",
+        "orchestra/testbench": "10.*|11.*"
     },
     "autoload": {
         "psr-4": {

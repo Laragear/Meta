@@ -144,7 +144,7 @@ trait BootHelpers
      * @param  callable(\Illuminate\Console\Scheduling\Schedule):mixed  $callback
      * @return void
      *
-     * @see https://laravelpackage.com/06-artisan-commands.html#scheduling-a-command-in-the-service-provider
+     * @see https://www.laravelpackage.com/06-artisan-commands/#scheduling-a-command-in-the-service-provider
      */
     protected function withSchedule(callable $callback): void
     {
@@ -161,36 +161,12 @@ trait BootHelpers
      */
     protected function withPublishableMigrations(array|string $directories, array|string $groups = 'migrations'): void
     {
-        if (! $this->app->runningInConsole()) {
-            return;
-        }
+        if ($this->app->runningInConsole()) {
+            $directories = (array) $directories;
 
-        $directories = (array) $directories;
-
-        if (method_exists($this, 'publishesMigrations')) {
             $this->publishesMigrations(array_fill_keys(
                 $directories, array_fill(0, count($directories), $this->app->databasePath('migrations'))
             ), $groups);
-
-            return;
         }
-
-        $now = now()->toMutable();
-
-        $files = Collection::make($directories)
-            ->flatMap(function (string $path): array {
-                return $this->app->make('files')->files($path);
-            })
-            ->mapWithKeys(function (SplFileInfo $file) use ($now): array {
-                return [
-                    $file->getRealPath() => $this->app->databasePath(
-                        'migrations/'.
-                        $now->addSecond()->format('Y_m_d_His').
-                        Str::match('/(?<=\d{4}_\d{2}_\d{2}_\d{6}).*/', $file->getFilename())
-                    ),
-                ];
-            });
-
-        $this->publishes($files->toArray(), 'migrations');
     }
 }
