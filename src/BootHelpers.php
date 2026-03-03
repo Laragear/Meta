@@ -9,18 +9,13 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Router;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
-use SplFileInfo;
 
 use function array_fill;
 use function array_fill_keys;
 use function count;
 use function is_callable;
 use function is_string;
-use function method_exists;
-use function now;
 
 trait BootHelpers
 {
