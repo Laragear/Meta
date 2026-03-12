@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Manager;
 use Illuminate\Support\ServiceProvider;
+use Laragear\Meta\Attributes\RegisterRule;
 use Laragear\Meta\BootHelpers;
 use Orchestra\Testbench\Attributes\DefineEnvironment;
 use Orchestra\Testbench\Http\Kernel;
@@ -21,6 +22,13 @@ class BootHelperTest extends TestCase
     protected function getPackageProviders($app): array
     {
         return [TestServiceProvider::class];
+    }
+
+    protected function setUp(): void
+    {
+        TestServiceProvider::flushCachedValidationRules();
+
+        parent::setUp();
     }
 
     public function test_with_driver(): void
@@ -95,6 +103,51 @@ class BootHelperTest extends TestCase
         static::assertSame('test-bar-message', $validator->getMessageBag()->first());
     }
 
+    public function test_registers_validation_rules_from_class(): void
+    {
+        $factory = $this->app->make('validator');
+        $extensions = $factory->make([], [])->extensions;
+
+        static::assertArrayHasKey('good', $extensions);
+        static::assertArrayHasKey('good_implicit', $extensions);
+        static::assertArrayHasKey('good_key', $extensions);
+        static::assertArrayNotHasKey('do_not_register_protected', $extensions);
+        static::assertArrayNotHasKey('do_not_register_private', $extensions);
+        static::assertArrayNotHasKey('do_not_register_protected_static', $extensions);
+
+        $validator = $factory->make(['pass' => 'passes'], ['pass' => 'good']);
+
+        static::assertFalse($validator->fails());
+        static::assertEmpty($validator->getMessageBag()->first());
+
+        $validator = $factory->make(['pass' => ''], ['pass' => 'good']);
+
+        static::assertFalse($validator->fails());
+        static::assertEmpty($validator->getMessageBag()->first());
+
+        $validator = $factory->make(['pass' => ''], ['pass' => 'good_implicit']);
+
+        static::assertTrue($validator->fails());
+        static::assertSame('testprefix::validation.validate_good_implicit', $validator->getMessageBag()->first());
+
+        $validator = $factory->make(['pass' => 'nope'], ['pass' => 'good_key']);
+
+        static::assertTrue($validator->fails());
+        static::assertSame('testprefix::validation.test-translation-key', $validator->getMessageBag()->first());
+    }
+
+    public function test_with_blade_directives(): void
+    {
+        static::assertArrayHasKey('test', $this->app->make('blade.compiler')->getCustomDirectives());
+    }
+
+    public function test_with_blade_components(): void
+    {
+        static::assertArrayHasKey(
+            'test-components-prefix', $this->app->make('blade.compiler')->getClassComponentNamespaces()
+        );
+    }
+
     public function test_with_middleware_does_not_edit_middleware_in_router(): void
     {
         static::assertSame(
@@ -167,6 +220,19 @@ class BootHelperTest extends TestCase
             ], $files);
         }
     }
+
+    public function test_flushes_cached_validation_rules(): void
+    {
+        static::assertEmpty(TestServiceProvider::cachedValidationRules());
+
+        $this->app->make('validator');
+
+        static::assertNotEmpty(TestServiceProvider::cachedValidationRules());
+
+        TestServiceProvider::flushCachedValidationRules();
+
+        static::assertEmpty(TestServiceProvider::cachedValidationRules());
+    }
 }
 
 class TestServiceProvider extends ServiceProvider
@@ -208,6 +274,8 @@ class TestServiceProvider extends ServiceProvider
         $this->withValidationRule('bar', fn ($key, $value) => $value === 'test_bar', 'test-bar-message', true);
         $this->withValidationRule('baz', fn ($key, $value) => $value === 'test_baz', fn () => 'test-baz-message', true);
 
+        $this->withValidationRulesFrom(TestValidationClass::class, 'testprefix');
+
         $this->withMiddleware(\Tests\Stubs\TestMiddleware::class);
 
         $this->withListener('test-event', \Tests\Stubs\TestEventListener::class);
@@ -222,6 +290,11 @@ class TestServiceProvider extends ServiceProvider
         });
 
         $this->withPublishableMigrations(__DIR__.'/../stubs/migrations');
+
+        $this->withValidationRulesFrom(TestValidationClass::class, 'testprefix');
+
+        $this->withBladeDirectives(['test' => fn () => 'true']);
+        $this->withBladeComponents(__DIR__.'/../stubs/components', 'test-components-prefix');
     }
 }
 
@@ -231,5 +304,60 @@ class TestSubscriber
     {
         $events->listen('test-event-foo', \Tests\Stubs\TestEventFooListener::class);
         $events->listen('test-event-bar', \Tests\Stubs\TestEventBarListener::class);
+    }
+}
+
+class TestValidationClass
+{
+    public function foo()
+    {
+        return true;
+    }
+
+    #[RegisterRule('do_not_register_protected')]
+    protected function bar()
+    {
+        return true;
+    }
+
+    #[RegisterRule('do_not_register_private')]
+    private function quz()
+    {
+        return true;
+    }
+
+    public static function baz()
+    {
+        return true;
+    }
+
+    #[RegisterRule('do_not_register_protected_static')]
+    protected static function validateStaticProtected()
+    {
+        return true;
+    }
+
+    #[RegisterRule('do_not_register_protected_static')]
+    private static function validateStaticPrivate()
+    {
+        return true;
+    }
+
+    #[RegisterRule('good')]
+    public static function validateGood(string $attribute, mixed $value)
+    {
+        return $value === 'passes';
+    }
+
+    #[RegisterRule('good_implicit', implicit: true)]
+    public static function validateGoodImplicit(string $attribute, mixed $value)
+    {
+        return $value === 'passes';
+    }
+
+    #[RegisterRule('good_key', translationKey: 'test-translation-key')]
+    public static function validateGoodTranslated(string $attribute, mixed $value)
+    {
+        return $value === 'passes';
     }
 }
