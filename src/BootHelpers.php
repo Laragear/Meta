@@ -9,7 +9,11 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Str;
+use Illuminate\View\Compilers\BladeCompiler;
+use Laragear\Meta\Attributes\RegisterRule;
 use Laragear\Meta\Http\Middleware\MiddlewareDeclaration;
+use ReflectionClass;
 
 use function array_fill;
 use function array_fill_keys;
@@ -19,6 +23,13 @@ use function is_string;
 
 trait BootHelpers
 {
+    /**
+     * Cached closures for registered validation rules.
+     *
+     * @var array<class-string, \Closure>
+     */
+    protected static array $cachedValidationRules = [];
+
     /**
      * Extends a manager-like service.
      *
@@ -53,7 +64,7 @@ trait BootHelpers
         string $rule,
         callable|string $callback,
         callable|string|null $message = null,
-        bool $implicit = false
+        bool $implicit = false,
     ): void {
         $this->callAfterResolving(
             'validator',
@@ -63,7 +74,50 @@ trait BootHelpers
                 $implicit
                     ? $validator->extendImplicit($rule, $callback, $message)
                     : $validator->extend($rule, $callback, $message);
-            }
+            },
+        );
+    }
+
+    /**
+     * Registers all Validation Rules found in a directory with a message from a translation prefix.
+     *
+     * @param  class-string|class-string[]  $classes
+     * @param  string  $keyPrefix  If you register a translation key as "my-package", the validation
+     *                             rules will use "my-package::validation.{rule}".
+     */
+    protected function withValidationRulesFrom(string|array $classes, string $keyPrefix): void
+    {
+        $this->callAfterResolving(
+            'validator',
+            static function (Factory $validator) use ($classes, $keyPrefix): void {
+                foreach ((array) $classes as $class) {
+                    if (! isset(static::$cachedValidationRules[$class])) {
+                        static::$cachedValidationRules[$class] = [];
+
+                        foreach ((new ReflectionClass($class))->getMethods() as $method) {
+                            /** @var \Laragear\Meta\Attributes\RegisterRule|null $attribute */
+                            if (
+                                $method->isPublic() && $method->isStatic() &&
+                                $attribute = Attr::of($method)->first(RegisterRule::class)
+                            ) {
+                                static::$cachedValidationRules[$class][$attribute->name] = [
+                                    $method->getClosure(),
+                                    "$keyPrefix::validation.".(
+                                        $attribute->translationKey ?: Str::snake($method->getName())
+                                    ),
+                                    $attribute->implicit,
+                                ];
+                            }
+                        }
+                    }
+
+                    foreach (static::$cachedValidationRules[$class] as $name => [$callback, $message, $implicit]) {
+                        $implicit
+                            ? $validator->extendImplicit($name, $callback, $message)
+                            : $validator->extend($name, $callback, $message);
+                    }
+                }
+            },
         );
     }
 
@@ -78,7 +132,7 @@ trait BootHelpers
     protected function withMiddleware(string $class): MiddlewareDeclaration
     {
         return new MiddlewareDeclaration(
-            $this->app->make(Router::class), $this->app->make(KernelContract::class), $class
+            $this->app->make(Router::class), $this->app->make(KernelContract::class), $class,
         );
     }
 
@@ -137,7 +191,6 @@ trait BootHelpers
      * Schedule a Job or Command using a callback.
      *
      * @param  callable(\Illuminate\Console\Scheduling\Schedule):mixed  $callback
-     * @return void
      *
      * @see https://www.laravelpackage.com/06-artisan-commands/#scheduling-a-command-in-the-service-provider
      */
@@ -160,8 +213,57 @@ trait BootHelpers
             $directories = (array) $directories;
 
             $this->publishesMigrations(array_fill_keys(
-                $directories, array_fill(0, count($directories), $this->app->databasePath('migrations'))
+                $directories, array_fill(0, count($directories), $this->app->databasePath('migrations')),
             ), $groups);
         }
+    }
+
+    /**
+     * Registers a simple Blade directive.
+     *
+     * @param  array<string, callable>|string  $name
+     * @param  ($name is string ? callable : null)  $handler
+     */
+    protected function withBladeDirectives(string|array $name, ?callable $handler = null): void
+    {
+        $name = $handler ? [$name => $handler] : $name;
+
+        $this->callAfterResolving(
+            BladeCompiler::class,
+            static function (BladeCompiler $blade) use ($name): void {
+                foreach ($name as $key => $handler) {
+                    $blade->directive($key, $handler);
+                }
+            },
+        );
+    }
+
+    /**
+     * Registers a directory of Blade components under a prefix.
+     */
+    protected function withBladeComponents(string $path, string $prefix): void
+    {
+        $this->callAfterResolving(
+            BladeCompiler::class,
+            static function (BladeCompiler $blade) use ($path, $prefix): void {
+                $blade->componentNamespace($path, $prefix);
+            },
+        );
+    }
+
+    /**
+     * Returns the cached validation rules.
+     */
+    public static function cachedValidationRules(): array
+    {
+        return static::$cachedValidationRules;
+    }
+
+    /**
+     * Flushes cached validation rules retrieved by reflection.
+     */
+    public static function flushCachedValidationRules(): void
+    {
+        static::$cachedValidationRules = [];
     }
 }

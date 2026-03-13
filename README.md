@@ -135,6 +135,24 @@ class AddServiceKey extends Command
 }
 ```
 
+## Attribute extractor
+
+The package contains the `Attr` helper that receives a target class, object, function, and allows to retrieve all or one attribute. Better yet, you can directly call a method or retrieve an attribute property.
+
+```php
+use Laragear\Meta\Attr;use Vendor\Package\Attributes\MyCustomAttribute;
+
+#[MyCustomAttribute(color: 'blue')]
+class Car
+{
+    // 
+}
+
+$car = new Car;
+
+echo Attr::of($car)->get(MyCustomAttribute::class, 'color'); // "blue"
+```
+
 ## Laravel Octane compatibility
 
 - There are no singletons using a stale application instance.
