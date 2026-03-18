@@ -6,9 +6,17 @@ use Attribute;
 use Error;
 use InvalidArgumentException;
 use Laragear\Meta\Attr;
+use ReflectionClass;
 
 class AttrTest extends TestCase
 {
+    public function test_resolves_from_reflection(): void
+    {
+        $attr = Attr::of(new ReflectionClass(StubClass::class));
+
+        static::assertNotEmpty($attr);
+    }
+
     public function test_resolves_from_class_string(): void
     {
         $attr = Attr::of(StubClass::class);
@@ -102,6 +110,52 @@ class AttrTest extends TestCase
         $attr->first('NonExistentAttribute');
     }
 
+    public function test_retrieves_arguments(): void
+    {
+        $attr = Attr::of(StubClass::class);
+
+        static::assertSame(['class'], $attr->arguments(TestAttribute::class));
+    }
+
+    public function test_retrieves_all_arguments(): void
+    {
+        $attr = Attr::of(StubClass::class);
+
+        static::assertSame([['class']], $attr->allArguments(TestAttribute::class));
+    }
+
+    public function test_emptiness(): void
+    {
+        $attr = Attr::of(StubClass::class);
+
+        static::assertFalse($attr->isEmpty());
+        static::assertTrue($attr->isNotEmpty());
+    }
+
+    public function test_test_not_emptiness(): void
+    {
+        $attr = Attr::of(StubClassWithoutAttributes::class);
+
+        static::assertTrue($attr->isEmpty());
+        static::assertFalse($attr->isNotEmpty());
+    }
+
+    public function test_has_given_attribute(): void
+    {
+        $attr = Attr::of(StubClass::class);
+
+        static::assertTrue($attr->has(TestAttribute::class));
+        static::assertFalse($attr->has(StubClass::class));
+    }
+
+    public function test_missing_given_attribute(): void
+    {
+        $attr = Attr::of(StubClass::class);
+
+        static::assertFalse($attr->missing(TestAttribute::class));
+        static::assertTrue($attr->missing(StubClass::class));
+    }
+
     public function test_get_retrieves_property_from_attribute(): void
     {
         $attr = Attr::of(StubClass::class);
@@ -147,12 +201,44 @@ class TestAttribute
     }
 }
 
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class TestRepeatableAttribute
+{
+    public function __construct(public string $value = 'default', public ?string $second = null)
+    {
+    }
+
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+}
+
 #[TestAttribute('class')]
 class StubClass
 {
     #[TestAttribute('property')]
     protected $property = 'value';
 
+    #[TestAttribute('method')]
+    public function stubMethod()
+    {
+    }
+
+    public function stubMethodWithoutAttributes()
+    {
+    }
+
+    #[TestRepeatableAttribute('first')]
+    #[TestRepeatableAttribute(value: 'second')]
+    #[TestRepeatableAttribute(second: 'test-argument', value: 'third')]
+    public function stubMethodWithMultipleAttributes()
+    {
+    }
+}
+
+class StubClassWithoutAttributes
+{
     #[TestAttribute('method')]
     public function stubMethod()
     {
