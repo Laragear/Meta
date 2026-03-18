@@ -4,6 +4,7 @@ namespace Laragear\Meta;
 
 use Closure;
 use Countable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use ReflectionAttribute;
@@ -13,6 +14,7 @@ use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
 
+use function array_values;
 use function class_exists;
 use function function_exists;
 use function is_array;
@@ -68,7 +70,7 @@ class Attr implements Countable
             }
         } else {
             throw new InvalidArgumentException(
-                'The target must be a class, object, callable, or class-property array.'
+                'The target must be a class, object, callable, or class-property array.',
             );
         }
     }
@@ -102,7 +104,7 @@ class Attr implements Countable
     }
 
     /**
-     * Retrieves the first instanced attribute value from a class, method, or property.
+     * Retrieves the first instanced attribute value from a target.
      *
      * @template TAttribute of object
      *
@@ -112,6 +114,62 @@ class Attr implements Countable
     public function first(?string $attribute = null): ?object
     {
         return $this->collect($attribute)->first()?->newInstance();
+    }
+
+    /**
+     * Retrieves all the arguments declared for the first given attribute.
+     *
+     * @param  class-string  $attribute
+     * @return scalar[]|null
+     */
+    public function arguments(string $attribute): ?array
+    {
+        return $this->collect($attribute)->first()?->getArguments();
+    }
+
+    /**
+     * Retrieves a Collection of all the arguments for the all declarations of the given attribute.
+     *
+     * @param  class-string  $attribute
+     * @return array<scalar[]>|null
+     */
+    public function allArguments(string $attribute): ?array
+    {
+        return $this->collect($attribute)->map(static function (ReflectionAttribute $attribute): array {
+            return $attribute->getArguments();
+        })->toArray();
+    }
+
+    /**
+     * Check if the target has no attributes set.
+     */
+    public function isEmpty(): bool
+    {
+        return $this->collect(null)->isEmpty();
+    }
+
+    /**
+     * Check if the target has any attribute set.
+     */
+    public function isNotEmpty(): bool
+    {
+        return !$this->isEmpty();
+    }
+
+    /**
+     * Check if the target has the given attribute.
+     */
+    public function has(string $attribute): bool
+    {
+        return $this->collect($attribute)->isNotEmpty();
+    }
+
+    /**
+     * Check if the target does not have the given attribute.
+     */
+    public function missing(string $attribute): bool
+    {
+        return !$this->has($attribute);
     }
 
     /**
