@@ -242,7 +242,6 @@ class StubClassWithoutAttributes
     #[TestAttribute('method')]
     public function stubMethod()
     {
-
     }
 }
 

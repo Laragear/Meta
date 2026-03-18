@@ -4,7 +4,6 @@ namespace Laragear\Meta;
 
 use Closure;
 use Countable;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use ReflectionAttribute;
@@ -14,7 +13,6 @@ use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
 
-use function array_values;
 use function class_exists;
 use function function_exists;
 use function is_array;
@@ -153,7 +151,7 @@ class Attr implements Countable
      */
     public function isNotEmpty(): bool
     {
-        return !$this->isEmpty();
+        return ! $this->isEmpty();
     }
 
     /**
@@ -169,7 +167,7 @@ class Attr implements Countable
      */
     public function missing(string $attribute): bool
     {
-        return !$this->has($attribute);
+        return ! $this->has($attribute);
     }
 
     /**
